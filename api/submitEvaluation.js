@@ -18,13 +18,18 @@ export default async function handler(req, res) {
   const form = formidable({ multiples: true });
 
   form.parse(req, async (err, fields, files) => {
+    console.log("🔧 Form parsing started...");
+
     if (err) {
+      console.error("❌ Form parse error:", err);
       return res.status(500).json({ error: "Form parse error" });
     }
 
+    console.log("✅ Fields parsed:", fields);
+    console.log("📂 Files parsed:", files);
+
     try {
       const assistantId = process.env.OPENAI_ASSISTANT_ID;
-
       const userInput = `
         Role: ${fields.role}
         Repair Skill: ${fields.repairSkill}
@@ -36,28 +41,33 @@ export default async function handler(req, res) {
         Listing URL: ${fields.listingURL}
       `;
 
-      // Create GPT thread
-      const thread = await openai.beta.threads.create();
+      console.log("🧠 Sending input to Assistant:", userInput);
 
-      // Add the main message
+      const thread = await openai.beta.threads.create();
+      console.log("🧵 Thread created:", thread.id);
+
       await openai.beta.threads.messages.create(thread.id, {
         role: "user",
         content: userInput,
       });
+      console.log("📩 Main message sent to thread.");
 
-      // Handle uploaded photos (limit to 2)
       if (files.photos) {
-        let uploads = Array.isArray(files.photos)
-          ? files.photos
-          : [files.photos];
-        uploads = uploads.slice(0, 2); // Enforce max 2 photos
+        let uploads = Array.isArray(files.photos) ? files.photos : [files.photos];
+        uploads = uploads.slice(0, 2);
+
+        console.log(`📸 Processing ${uploads.length} photo(s)...`);
 
         for (const photo of uploads) {
+          console.log("🔍 Uploading photo:", photo.originalFilename || photo.filepath);
+
           const fileStream = fs.createReadStream(photo.filepath);
           const uploadedFile = await openai.files.create({
             file: fileStream,
             purpose: "assistants",
           });
+
+          console.log("✅ File uploaded to OpenAI:", uploadedFile.id);
 
           await openai.beta.threads.messages.create(thread.id, {
             role: "user",
@@ -67,25 +77,26 @@ export default async function handler(req, res) {
         }
       }
 
-      // Run the assistant
       const run = await openai.beta.threads.runs.create(thread.id, {
         assistant_id: assistantId,
       });
 
-      // Wait for response
+      console.log("🚀 Assistant run started:", run.id);
+
       let runStatus;
       do {
         runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+        console.log("⏳ Waiting... status:", runStatus.status);
         await new Promise((r) => setTimeout(r, 2000));
       } while (runStatus.status !== "completed");
 
-      // Get assistant message
       const messages = await openai.beta.threads.messages.list(thread.id);
       const report = messages.data[0].content[0].text.value;
 
+      console.log("✅ Final report received.");
       return res.status(200).json({ report });
     } catch (e) {
-      console.error(e);
+      console.error("❌ Error in evaluation process:", e);
       return res.status(500).json({ error: "Evaluation failed." });
     }
   });

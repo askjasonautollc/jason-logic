@@ -25,7 +25,6 @@ export default async function handler(req, res) {
 
     try {
       const assistantId = process.env.OPENAI_ASSISTANT_ID;
-
       const flatten = (v) => Array.isArray(v) ? v[0] : v;
 
       const year = flatten(fields.year);
@@ -97,52 +96,37 @@ export default async function handler(req, res) {
         });
       }
 
-      let markdown = messageContent.text.value;
+      const rawText = messageContent.text.value;
 
-      markdown = markdown
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 text-sm p-4 rounded mb-4">$1</pre>')
-        .replace(/## (.*?)\n/g, '<h2 class="text-lg font-bold text-lime-400 mt-6 mb-2">$1</h2>')
-        .replace(/# (.*?)\n/g, '<h1 class="text-xl font-bold text-lime-400 mt-8 mb-4">$1</h1>')
-        .replace(/\n(?=\d+\. )/g, '</li><li>')
-        .replace(/\n{2,}/g, '</p><p>')
-        .replace(/\n/g, '<br>');
+      // Extract common sections
+      const extract = (label) => {
+        const match = rawText.match(new RegExp(`${label}[^#]*`, 'i'));
+        return match ? match[0].trim() : null;
+      };
 
-      markdown = markdown.replace(/(\d+)\. (.*?) – \$(\d[\d,]*–?\$?\d*[\d,]*)\. (.*?)<br>/g, (_match, index, issue, cost, detail) => {
-        return `
-          <div class="bg-gray-700 rounded-lg p-4 mb-4 shadow-sm">
-            <p class="text-white font-semibold">${index}. ${issue}</p>
-            <p class="text-gray-400 text-sm">Estimated Cost: ${cost}</p>
-            <p class="text-sm text-gray-300 mt-1">${detail}</p>
-          </div>
-        `;
-      });
+      const topRisks = extract("Top 5 Known Issues");
+      const checklist = extract("Checklist");
+      const buyerMath = extract("Buyer Math");
+      const jasonsTake = extract("Jason.*Would Move");
+
+      const formatBlock = (title, content, type = "div") =>
+        content ? `<section class="bg-gray-800 rounded-xl p-6 shadow-md">
+          <h2 class="text-lime-400 text-lg font-semibold mb-3">${title}</h2>
+          <${type} class="text-sm text-gray-300 leading-relaxed whitespace-pre-line">${content.trim()}</${type}>
+        </section>` : "";
 
       const reportHtml = `
         <div class="space-y-8 text-sm text-gray-300 leading-relaxed">
-          <section class="bg-gray-800 rounded-xl p-6 shadow-md">
-            <h2 class="text-lime-400 text-lg font-semibold mb-3">🧾 Submission Recap</h2>
-            <ul class="grid sm:grid-cols-2 gap-y-2 gap-x-8">
-              <li><strong>Year:</strong> ${year}</li>
-              <li><strong>Make:</strong> ${make}</li>
-              <li><strong>Model:</strong> ${model}</li>
-              <li><strong>Price:</strong> ${price}</li>
-              <li><strong>ZIP:</strong> ${zip}</li>
-              <li class="sm:col-span-2"><strong>Seller Notes:</strong> ${notes}</li>
-              <li class="sm:col-span-2"><strong>Photo references:</strong> ${photosNote}</li>
-            </ul>
-          </section>
-
           <section class="bg-gray-800 rounded-xl p-6 shadow-md">
             <h2 class="text-lime-400 text-lg font-semibold mb-3">📊 Evaluation Summary</h2>
             <p class="text-white font-semibold text-base mb-1">${year} ${make} ${model} – ${price}</p>
             <p class="text-gray-400 text-sm">${zip} • ${notes}</p>
           </section>
 
-          <section class="bg-gray-800 rounded-xl p-6 shadow-md">
-            <h2 class="text-lime-400 text-lg font-semibold mb-3">🚨 Vehicle Report</h2>
-            <div class="prose prose-invert max-w-none text-gray-200">${markdown}</div>
-          </section>
+          ${formatBlock("🚨 Top 5 Known Issues + Repair Risk", topRisks)}
+          ${formatBlock("✅ Checklist (Tailored Per Car)", checklist)}
+          ${formatBlock("📉 Buyer Math", buyerMath, 'pre')}
+          ${formatBlock("🧠 Jason’s Real Talk", jasonsTake)}
         </div>
       `;
 

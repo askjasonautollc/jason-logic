@@ -57,8 +57,30 @@ export default async function handler(req, res) {
       console.log("📩 Main message sent to thread.");
 
       if (files.photos) {
-        let uploads = Array.isArray(files.photos) ? files.photos : [files.photos];
-        uploads = uploads.slice(0, 2);
+  let uploads = Array.isArray(files.photos) ? files.photos : [files.photos];
+  uploads = uploads.slice(0, 2);
+
+  // 🛡️ Filter out any empty or invalid files
+  uploads = uploads.filter(file => file && file.size > 0 && file.mimetype?.startsWith('image/'));
+
+  console.log(`📸 Valid photos to upload: ${uploads.length}`);
+
+  for (const photo of uploads) {
+    console.log("📷 Uploading:", photo.originalFilename || photo.filepath);
+
+    const fileStream = fs.createReadStream(photo.filepath);
+    const uploadedFile = await openai.files.create({
+      file: fileStream,
+      purpose: "assistants",
+    });
+
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      file_ids: [uploadedFile.id],
+      content: "Attached vehicle photo for evaluation.",
+    });
+  }
+}
 
         console.log(`📸 Processing ${uploads.length} photo(s)...`);
 

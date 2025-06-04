@@ -1,0 +1,9 @@
+{
+  "name": "ask-jason-auto-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "openai": "^4.25.0",
+    "formidable": "^3.5.0"
+  }
+}

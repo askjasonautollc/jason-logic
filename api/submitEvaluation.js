@@ -17,7 +17,8 @@ export default async function handler(req, res) {
 
   const form = formidable({
   multiples: true,
-  allowEmptyFiles: true // ✅ Accept empty uploads
+  allowEmptyFiles: true,
+  minFileSize: 0 // ✅ Allow 0-byte file fields without crashing
 });
 
   form.parse(req, async (err, fields, files) => {

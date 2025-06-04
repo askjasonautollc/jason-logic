@@ -2,7 +2,7 @@ import { OpenAI } from "openai";
 import formidable from "formidable";
 import fs from "fs";
 
-// Prevents Next.js from parsing body (we use formidable instead)
+// Disable body parsing (handled by formidable)
 export const config = {
   api: {
     bodyParser: false,
@@ -12,7 +12,6 @@ export const config = {
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
-  // CORS headers for Webflow/Frontend POST
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -31,27 +30,35 @@ export default async function handler(req, res) {
     try {
       const assistantId = process.env.OPENAI_ASSISTANT_ID;
 
+      const {
+        role,
+        repairSkill,
+        year,
+        make,
+        model,
+        zip,
+        conditionNotes,
+        listingURL
+      } = fields;
+
       const userInput = `
-        Role: ${fields.role}
-        Repair Skill: ${fields.repairSkill}
-        Year: ${fields.year}
-        Make: ${fields.make}
-        Model: ${fields.model}
-        ZIP Code: ${fields.zip}
-        Notes: ${fields.conditionNotes}
-        Listing URL: ${fields.listingURL}
+        Role: ${role}
+        Repair Skill: ${repairSkill}
+        Year: ${year}
+        Make: ${make}
+        Model: ${model}
+        ZIP Code: ${zip}
+        Notes: ${conditionNotes}
+        Listing URL: ${listingURL}
       `.trim();
 
-      // Step 1: Start thread
       const thread = await openai.beta.threads.create();
 
-      // Step 2: Initial user message
       await openai.beta.threads.messages.create(thread.id, {
         role: "user",
         content: userInput,
       });
 
-      // Step 3: Attach up to 2 images if available
       if (files.photos) {
         let uploads = Array.isArray(files.photos) ? files.photos : [files.photos];
         uploads = uploads.slice(0, 2).filter(file =>
@@ -68,22 +75,18 @@ export default async function handler(req, res) {
           await openai.beta.threads.messages.create(thread.id, {
             role: "user",
             content: "Attached vehicle photo for review.",
-            attachments: [
-              {
-                file_id: uploadedFile.id,
-                tools: [{ type: "code_interpreter" }],
-              },
-            ],
+            attachments: [{
+              file_id: uploadedFile.id,
+              tools: [{ type: "code_interpreter" }]
+            }],
           });
         }
       }
 
-      // Step 4: Run assistant
       const run = await openai.beta.threads.runs.create(thread.id, {
         assistant_id: assistantId,
       });
 
-      // Step 5: Poll until complete
       let runStatus;
       let retries = 0;
       const maxRetries = 15;
@@ -91,25 +94,56 @@ export default async function handler(req, res) {
       do {
         runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
         if (runStatus.status === "completed") break;
-
-        if (++retries > maxRetries) {
-          throw new Error("Timed out waiting for assistant response");
-        }
-
-        await new Promise((r) => setTimeout(r, 2000));
+        if (++retries > maxRetries) throw new Error("Timed out waiting for assistant response");
+        await new Promise(r => setTimeout(r, 2000));
       } while (runStatus.status !== "completed");
 
-      // Step 6: Get latest message from assistant
       const messages = await openai.beta.threads.messages.list(thread.id);
       const lastMessage = messages.data.find(msg => msg.role === "assistant");
+      const markdown = lastMessage?.content?.[0]?.text?.value || "No report generated.";
 
-      const report = lastMessage?.content?.[0]?.text?.value || "⚠️ No report returned.";
+      // Convert markdown to styled HTML
+      const reportHtml = `
+        <div class="space-y-8 text-sm text-gray-300 leading-relaxed">
+          <section class="bg-gray-800 rounded-xl p-6 shadow-lg">
+            <h2 class="text-lime-400 text-xl font-semibold mb-4">🧾 User Submission Recap</h2>
+            <ul class="space-y-1">
+              <li><strong>Year:</strong> ${year}</li>
+              <li><strong>Make:</strong> ${make}</li>
+              <li><strong>Model:</strong> ${model}</li>
+              <li><strong>ZIP Code:</strong> ${zip}</li>
+              <li><strong>Price:</strong> ${listingURL?.includes("$") ? listingURL.match(/\$\d[\d,]*/) : "N/A"}</li>
+              <li><strong>Mileage / Notes:</strong> ${conditionNotes}</li>
+            </ul>
+          </section>
 
-      return res.status(200).json({ report });
+          <section class="bg-gray-800 rounded-xl p-6 shadow-lg">
+            <h2 class="text-lime-400 text-xl font-semibold mb-4">📊 Evaluation Summary</h2>
+            <p class="text-white font-semibold mb-2">${year} ${make} ${model}</p>
+            <p class="text-sm text-gray-400">${zip} • ${repairSkill}</p>
+          </section>
+
+          <section class="bg-gray-800 rounded-xl p-6 shadow-lg">
+            <h2 class="text-lime-400 text-xl font-semibold mb-4">🚨 Report Results</h2>
+            <div class="prose prose-invert max-w-none text-gray-200">${markdown
+              .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+              .replace(/\n{2,}/g, '</p><p>')
+              .replace(/\n/g, '<br>')
+              .replace(/- /g, '<li>')
+              .replace(/<li>(.*?)<\/li>/g, '<ul class="list-disc list-inside mb-2"><li>$1</li></ul>')
+              .replace(/## (.*?)\n/g, '<h2 class="text-lg font-bold text-lime-400 mt-6 mb-2">$1</h2>')
+              .replace(/# (.*?)\n/g, '<h1 class="text-xl font-bold text-lime-400 mt-8 mb-4">$1</h1>')
+              .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 text-sm p-4 rounded mb-4">$1</pre>')
+            }</div>
+          </section>
+        </div>
+      `;
+
+      return res.status(200).json({ reportHtml });
 
     } catch (e) {
-      console.error("❌ Error in evaluation process:", e);
-      return res.status(500).json({ error: "Evaluation failed." });
+      console.error("❌ Evaluation error:", e);
+      return res.status(500).json({ error: "Evaluation failed" });
     }
   });
 }

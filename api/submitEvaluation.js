@@ -139,7 +139,7 @@ export default async function handler(req, res) {
         </div>
       `;
 
-      return res.status(200).json({ reportHtml });
+      return res.status(200).json({ report: markdown });
 
     } catch (e) {
       console.error("❌ Evaluation error:", e);

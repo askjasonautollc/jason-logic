@@ -4,7 +4,7 @@ import fs from "fs";
 
 export const config = {
   api: {
-    bodyParser: false, // Required for file uploads
+    bodyParser: false,
   },
 };
 
@@ -16,24 +16,25 @@ export default async function handler(req, res) {
   }
 
   const form = formidable({
-  multiples: true,
-  allowEmptyFiles: true,
-  minFileSize: 0 // ✅ Allow 0-byte file fields without crashing
-});
+    multiples: true,
+    allowEmptyFiles: true,
+    minFileSize: 0,
+  });
 
   form.parse(req, async (err, fields, files) => {
-    console.log("🔧 Form parsing started...");
+    console.log("📥 Incoming request to /submitEvaluation");
 
     if (err) {
       console.error("❌ Form parse error:", err);
       return res.status(500).json({ error: "Form parse error" });
     }
 
-    console.log("✅ Fields parsed:", fields);
-    console.log("📂 Files parsed:", files);
+    console.log("✅ Parsed fields:", fields);
+    console.log("📎 Parsed files:", files);
 
     try {
       const assistantId = process.env.OPENAI_ASSISTANT_ID;
+
       const userInput = `
         Role: ${fields.role}
         Repair Skill: ${fields.repairSkill}
@@ -45,7 +46,7 @@ export default async function handler(req, res) {
         Listing URL: ${fields.listingURL}
       `;
 
-      console.log("🧠 Sending input to Assistant:", userInput);
+      console.log("🧠 Prompt being sent:", userInput);
 
       const thread = await openai.beta.threads.create();
       console.log("🧵 Thread created:", thread.id);
@@ -54,73 +55,49 @@ export default async function handler(req, res) {
         role: "user",
         content: userInput,
       });
-      console.log("📩 Main message sent to thread.");
 
       if (files.photos) {
-  let uploads = Array.isArray(files.photos) ? files.photos : [files.photos];
-  uploads = uploads.slice(0, 2);
+        let uploads = Array.isArray(files.photos) ? files.photos : [files.photos];
+        uploads = uploads.slice(0, 2);
+        uploads = uploads.filter(file => file && file.size > 0 && file.mimetype?.startsWith("image/"));
 
-  // Filter out empty or invalid image files
-  uploads = uploads.filter(file => file && file.size > 0 && file.mimetype?.startsWith('image/'));
-
-  console.log(`📸 Valid photos to upload: ${uploads.length}`);
-
-  for (const photo of uploads) {
-    console.log("📷 Uploading:", photo.originalFilename || photo.filepath);
-
-    const fileStream = fs.createReadStream(photo.filepath);
-    const uploadedFile = await openai.files.create({
-      file: fileStream,
-      purpose: "assistants",
-    });
-
-    await openai.beta.threads.messages.create(thread.id, {
-      role: "user",
-      file_ids: [uploadedFile.id],
-      content: "Attached vehicle photo for evaluation.",
-    });
-  }
-}
-
-      console.log(`📸 Processing ${uploads.length} photo(s)...`);
+        console.log(`📸 Uploading ${uploads.length} photo(s)...`);
 
         for (const photo of uploads) {
-          console.log("🔍 Uploading photo:", photo.originalFilename || photo.filepath);
-
           const fileStream = fs.createReadStream(photo.filepath);
           const uploadedFile = await openai.files.create({
             file: fileStream,
             purpose: "assistants",
           });
 
-          console.log("✅ File uploaded to OpenAI:", uploadedFile.id);
-
           await openai.beta.threads.messages.create(thread.id, {
             role: "user",
             file_ids: [uploadedFile.id],
             content: "Attached vehicle photo for evaluation.",
           });
+
+          console.log("✅ File uploaded:", uploadedFile.id);
         }
       }
 
       const run = await openai.beta.threads.runs.create(thread.id, {
         assistant_id: assistantId,
       });
-
       console.log("🚀 Assistant run started:", run.id);
 
       let runStatus;
       do {
         runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
         console.log("⏳ Waiting... status:", runStatus.status);
-        await new Promise((r) => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 2000));
       } while (runStatus.status !== "completed");
 
       const messages = await openai.beta.threads.messages.list(thread.id);
       const report = messages.data[0].content[0].text.value;
 
-      console.log("✅ Final report received.");
+      console.log("✅ Report generated.");
       return res.status(200).json({ report });
+
     } catch (e) {
       console.error("❌ Error in evaluation process:", e);
       return res.status(500).json({ error: "Evaluation failed." });

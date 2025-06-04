@@ -15,7 +15,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const form = formidable({ multiples: true });
+  const form = formidable({
+  multiples: true,
+  allowEmptyFiles: true // ✅ Accept empty uploads
+});
 
   form.parse(req, async (err, fields, files) => {
     console.log("🔧 Form parsing started...");

@@ -60,7 +60,7 @@ export default async function handler(req, res) {
   let uploads = Array.isArray(files.photos) ? files.photos : [files.photos];
   uploads = uploads.slice(0, 2);
 
-  // 🛡️ Filter out any empty or invalid files
+  // Filter out empty or invalid image files
   uploads = uploads.filter(file => file && file.size > 0 && file.mimetype?.startsWith('image/'));
 
   console.log(`📸 Valid photos to upload: ${uploads.length}`);
@@ -82,7 +82,7 @@ export default async function handler(req, res) {
   }
 }
 
-        console.log(`📸 Processing ${uploads.length} photo(s)...`);
+      console.log(`📸 Processing ${uploads.length} photo(s)...`);
 
         for (const photo of uploads) {
           console.log("🔍 Uploading photo:", photo.originalFilename || photo.filepath);

@@ -97,7 +97,26 @@ export default async function handler(req, res) {
         });
       }
 
-      const markdown = messageContent.text.value;
+      let markdown = messageContent.text.value;
+
+      markdown = markdown
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 text-sm p-4 rounded mb-4">$1</pre>')
+        .replace(/## (.*?)\n/g, '<h2 class="text-lg font-bold text-lime-400 mt-6 mb-2">$1</h2>')
+        .replace(/# (.*?)\n/g, '<h1 class="text-xl font-bold text-lime-400 mt-8 mb-4">$1</h1>')
+        .replace(/\n(?=\d+\. )/g, '</li><li>')
+        .replace(/\n{2,}/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+
+      markdown = markdown.replace(/(\d+)\. (.*?) – \$(\d[\d,]*–?\$?\d*[\d,]*)\. (.*?)<br>/g, (_match, index, issue, cost, detail) => {
+        return `
+          <div class="bg-gray-700 rounded-lg p-4 mb-4 shadow-sm">
+            <p class="text-white font-semibold">${index}. ${issue}</p>
+            <p class="text-gray-400 text-sm">Estimated Cost: ${cost}</p>
+            <p class="text-sm text-gray-300 mt-1">${detail}</p>
+          </div>
+        `;
+      });
 
       const reportHtml = `
         <div class="space-y-8 text-sm text-gray-300 leading-relaxed">
@@ -122,16 +141,7 @@ export default async function handler(req, res) {
 
           <section class="bg-gray-800 rounded-xl p-6 shadow-md">
             <h2 class="text-lime-400 text-lg font-semibold mb-3">🚨 Vehicle Report</h2>
-            <div class="prose prose-invert max-w-none text-gray-200">${markdown
-              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-              .replace(/\n{2,}/g, '</p><p>')
-              .replace(/\n/g, '<br>')
-              .replace(/- /g, '<li>')
-              .replace(/<li>(.*?)<\/li>/g, '<ul class="list-disc list-inside space-y-1 mb-2"><li>$1</li></ul>')
-              .replace(/## (.*?)\n/g, '<h2 class="text-lg font-bold text-lime-400 mt-6 mb-2">$1</h2>')
-              .replace(/# (.*?)\n/g, '<h1 class="text-xl font-bold text-lime-400 mt-8 mb-4">$1</h1>')
-              .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 text-sm p-4 rounded mb-4">$1</pre>')
-            }</div>
+            <div class="prose prose-invert max-w-none text-gray-200">${markdown}</div>
           </section>
         </div>
       `;

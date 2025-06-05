@@ -2,7 +2,7 @@ import { OpenAI } from "openai";
 import formidable from "formidable";
 import fs from "fs";
 import fetch from "node-fetch";
-import { logTraffic } from "../logTraffic.js"; // fixed path and extension
+import { logTraffic } from "../logTraffic.js";
 
 export const config = {
   api: {
@@ -12,26 +12,24 @@ export const config = {
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const decodeVin = async (vin: string) => {
+const decodeVin = async (vin) => {
   try {
-    // Try VinAudit
     const primary = await fetch(`https://api.vinaudit.com/v2/pullreport?vin=${vin}&key=${process.env.VINAUDIT_API_KEY}&format=json`);
     if (primary.ok) {
       const vinAuditData = await primary.json();
-      if (vinAuditData?.vehicle) return vinAuditData.vehicle;
+      return { source: "VinAudit", data: vinAuditData };
     }
   } catch (err) {
     console.warn("Primary VIN decoder (VinAudit) failed:", err);
   }
 
-  // Fallback to NHTSA
   try {
     const fallback = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
     const nhtsaData = await fallback.json();
-    return nhtsaData?.Results?.[0] || null;
+    return { source: "NHTSA", data: nhtsaData.Results[0] };
   } catch (err) {
     console.error("Fallback VIN decoder (NHTSA) failed:", err);
-    return null;
+    return { source: "error", error: err.message };
   }
 };
 
@@ -59,25 +57,28 @@ export default async function handler(req, res) {
 
     try {
       const assistantId = process.env.OPENAI_ASSISTANT_ID;
-      let { role, repairSkill, year, make, model, zip, conditionNotes, vin } = flatFields;
+      const { role, repairSkill, year, make, model, zip, conditionNotes, vin } = flatFields;
 
-      // Decode VIN if present and fill in missing fields
+      let decodedData = {};
+      let rawVinData = "";
       if (vin) {
         const decoded = await decodeVin(vin);
-        year = year || decoded.ModelYear;
-        make = make || decoded.Make;
-        model = model || decoded.Model;
+        rawVinData = JSON.stringify(decoded.data, null, 2);
+        decodedData = decoded.data || {};
       }
 
       const userInput = `
         Role: ${role}
         Repair Skill: ${repairSkill}
-        Year: ${year}
-        Make: ${make}
-        Model: ${model}
+        Year: ${year || decodedData.ModelYear || decodedData.year}
+        Make: ${make || decodedData.Make || decodedData.make}
+        Model: ${model || decodedData.Model || decodedData.model}
         ZIP Code: ${zip}
         Notes: ${conditionNotes}
         VIN: ${vin}
+
+        Raw VIN Data:
+        ${rawVinData}
       `.trim();
 
       const thread = await openai.beta.threads.create();

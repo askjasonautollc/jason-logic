@@ -23,6 +23,11 @@ export default async function handler(req, res) {
   const form = formidable({ multiples: true, allowEmptyFiles: true, minFileSize: 0 });
 
   form.parse(req, async (err, fields, files) => {
+    const flatFields = {};
+    for (const [key, val] of Object.entries(fields)) {
+      flatFields[key] = Array.isArray(val) ? val[0] : val;
+    }
+
     if (err) {
       console.error("❌ Form parse error:", err);
       await logTraffic({
@@ -48,7 +53,7 @@ export default async function handler(req, res) {
         zip,
         conditionNotes,
         listingURL
-      } = fields;
+      } = flatFields;
 
       const userInput = `
         Role: ${role}
@@ -115,9 +120,9 @@ export default async function handler(req, res) {
         endpoint: req.url,
         method: req.method,
         statusCode: 200,
-        request: fields,
+        request: flatFields,
         response: { report: markdown },
-        session_id: fields.session_id,
+        session_id: flatFields.session_id,
         req
       });
 
@@ -130,9 +135,9 @@ export default async function handler(req, res) {
         endpoint: req.url,
         method: req.method,
         statusCode: 500,
-        request: fields,
+        request: flatFields,
         response: { error: e.message },
-        session_id: fields.session_id,
+        session_id: flatFields.session_id,
         req
       });
 

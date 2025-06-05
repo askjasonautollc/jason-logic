@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import formidable from "formidable";
 import fs from "fs";
-import { logTraffic } from "../logTraffic.js"; // adjust path if needed
+import { logTraffic } from "../logtraffic.js"; // fixed path and extension
 
 // Disable body parsing (handled by formidable)
 export const config = {
@@ -30,7 +30,8 @@ export default async function handler(req, res) {
         method: req.method,
         statusCode: 500,
         request: {},
-        response: { error: "Form parse error" }
+        response: { error: "Form parse error" },
+        req
       });
       return res.status(500).json({ error: "Form parse error" });
     }
@@ -110,14 +111,14 @@ export default async function handler(req, res) {
       const lastMessage = messages.data.find(msg => msg.role === "assistant");
       const markdown = lastMessage?.content?.[0]?.text?.value || "No report generated.";
 
-      const reportHtml = `...`; // You can keep your styled HTML block if you use it
-
       await logTraffic({
         endpoint: req.url,
         method: req.method,
         statusCode: 200,
         request: fields,
-        response: { report: markdown }
+        response: { report: markdown },
+        session_id: fields.session_id,
+        req
       });
 
       return res.status(200).json({ report: markdown });
@@ -130,7 +131,9 @@ export default async function handler(req, res) {
         method: req.method,
         statusCode: 500,
         request: fields,
-        response: { error: e.message }
+        response: { error: e.message },
+        session_id: fields.session_id,
+        req
       });
 
       return res.status(500).json({ error: "Evaluation failed" });

@@ -52,7 +52,7 @@ export default async function handler(req, res) {
         model,
         zip,
         conditionNotes,
-        listingURL
+        vin
       } = flatFields;
 
       const userInput = `
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
         Model: ${model}
         ZIP Code: ${zip}
         Notes: ${conditionNotes}
-        Listing URL: ${listingURL}
+        VIN: ${vin}
       `.trim();
 
       const thread = await openai.beta.threads.create();

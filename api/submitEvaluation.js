@@ -12,13 +12,25 @@ export const config = {
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const decodeVin = async (vin) => {
+const decodeVin = async (vin: string) => {
   try {
-    const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
-    const data = await res.json();
-    return data?.Results?.[0];
+    // Try VinAudit
+    const primary = await fetch(`https://api.vinaudit.com/v2/pullreport?vin=${vin}&key=${process.env.VINAUDIT_API_KEY}&format=json`);
+    if (primary.ok) {
+      const vinAuditData = await primary.json();
+      if (vinAuditData?.vehicle) return vinAuditData.vehicle;
+    }
   } catch (err) {
-    console.error("VIN decode error:", err);
+    console.warn("Primary VIN decoder (VinAudit) failed:", err);
+  }
+
+  // Fallback to NHTSA
+  try {
+    const fallback = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
+    const nhtsaData = await fallback.json();
+    return nhtsaData?.Results?.[0] || null;
+  } catch (err) {
+    console.error("Fallback VIN decoder (NHTSA) failed:", err);
     return null;
   }
 };

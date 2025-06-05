@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import formidable from "formidable";
 import fs from "fs";
-import { logTraffic } from "../logTraffic"; // adjust path if needed
+import { logTraffic } from "../logTraffic.js"; // adjust path if needed
 
 // Disable body parsing (handled by formidable)
 export const config = {

@@ -1,6 +1,7 @@
 import { OpenAI } from "openai";
 import formidable from "formidable";
 import fs from "fs";
+import { logTraffic } from "../logTraffic"; // adjust path if needed
 
 // Disable body parsing (handled by formidable)
 export const config = {
@@ -24,6 +25,13 @@ export default async function handler(req, res) {
   form.parse(req, async (err, fields, files) => {
     if (err) {
       console.error("❌ Form parse error:", err);
+      await logTraffic({
+        endpoint: req.url,
+        method: req.method,
+        statusCode: 500,
+        request: {},
+        response: { error: "Form parse error" }
+      });
       return res.status(500).json({ error: "Form parse error" });
     }
 
@@ -102,47 +110,29 @@ export default async function handler(req, res) {
       const lastMessage = messages.data.find(msg => msg.role === "assistant");
       const markdown = lastMessage?.content?.[0]?.text?.value || "No report generated.";
 
-      // Convert markdown to styled HTML
-      const reportHtml = `
-        <div class="space-y-8 text-sm text-gray-300 leading-relaxed">
-          <section class="bg-gray-800 rounded-xl p-6 shadow-lg">
-            <h2 class="text-lime-400 text-xl font-semibold mb-4">🧾 User Submission Recap</h2>
-            <ul class="space-y-1">
-              <li><strong>Year:</strong> ${year}</li>
-              <li><strong>Make:</strong> ${make}</li>
-              <li><strong>Model:</strong> ${model}</li>
-              <li><strong>ZIP Code:</strong> ${zip}</li>
-              <li><strong>Price:</strong> ${listingURL?.includes("$") ? listingURL.match(/\$\d[\d,]*/) : "N/A"}</li>
-              <li><strong>Mileage / Notes:</strong> ${conditionNotes}</li>
-            </ul>
-          </section>
+      const reportHtml = `...`; // You can keep your styled HTML block if you use it
 
-          <section class="bg-gray-800 rounded-xl p-6 shadow-lg">
-            <h2 class="text-lime-400 text-xl font-semibold mb-4">📊 Evaluation Summary</h2>
-            <p class="text-white font-semibold mb-2">${year} ${make} ${model}</p>
-            <p class="text-sm text-gray-400">${zip} • ${repairSkill}</p>
-          </section>
-
-          <section class="bg-gray-800 rounded-xl p-6 shadow-lg">
-            <h2 class="text-lime-400 text-xl font-semibold mb-4">🚨 Report Results</h2>
-            <div class="prose prose-invert max-w-none text-gray-200">${markdown
-              .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
-              .replace(/\n{2,}/g, '</p><p>')
-              .replace(/\n/g, '<br>')
-              .replace(/- /g, '<li>')
-              .replace(/<li>(.*?)<\/li>/g, '<ul class="list-disc list-inside mb-2"><li>$1</li></ul>')
-              .replace(/## (.*?)\n/g, '<h2 class="text-lg font-bold text-lime-400 mt-6 mb-2">$1</h2>')
-              .replace(/# (.*?)\n/g, '<h1 class="text-xl font-bold text-lime-400 mt-8 mb-4">$1</h1>')
-              .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 text-sm p-4 rounded mb-4">$1</pre>')
-            }</div>
-          </section>
-        </div>
-      `;
+      await logTraffic({
+        endpoint: req.url,
+        method: req.method,
+        statusCode: 200,
+        request: fields,
+        response: { report: markdown }
+      });
 
       return res.status(200).json({ report: markdown });
 
     } catch (e) {
       console.error("❌ Evaluation error:", e);
+
+      await logTraffic({
+        endpoint: req.url,
+        method: req.method,
+        statusCode: 500,
+        request: fields,
+        response: { error: e.message }
+      });
+
       return res.status(500).json({ error: "Evaluation failed" });
     }
   });

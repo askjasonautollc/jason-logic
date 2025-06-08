@@ -1,0 +1,247 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Core Plan – Ask Jason Auto</title>
+
+  <!-- 🟢 PWA Manifest + Theme Color -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#000000">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17130303914"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-17130303914');
+  </script>
+  <script src="https://cdn.usefathom.com/script.js" data-site="BZGXIYBC" defer></script>
+  <style>
+    body {
+      background-color: #0B0B0B;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .lime {
+      color: #C7F21D;
+    }
+    .bg-lime {
+      background-color: #C7F21D;
+    }
+    .hover\:bg-lime-dark:hover {
+      background-color: #b1d81c;
+    }
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top: 4px solid #C7F21D;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .formkit-modal.guard {
+      display: flex !important;
+      justify-content: center;
+      align-items: center;
+    }
+    .formkit-submitted-message,
+    .formkit-form[data-uid="cac1668b94"] .formkit-return-visitor {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #C7F21D;
+    }
+    #nav-buttons {
+      transition: transform 0.3s ease;
+    }
+  </style>
+</head>
+<body class="text-white text-base leading-relaxed sm:text-base">
+  <div class="bg-yellow-600 text-black text-sm text-center py-2 px-4 font-medium shadow-md z-50">
+    🚧 Pardon our mess as we optimize. 💡 We want to give you the best deals as soon as possible. 🚀 Massive Launch Coming July 4th! 🎉
+  </div>
+
+  <div id="nav-buttons" class="max-w-4xl mx-auto px-4 py-4 flex justify-center gap-4 sticky top-0 z-40">
+    <a href="/" class="bg-gray-700 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg shadow transition">Home</a>
+    <a href="/redflag" class="bg-red-500 text-black font-bold px-4 py-2 rounded-lg shadow hover:bg-red-400 transition">Red Flag of the Day</a>
+  </div>
+
+ <div class="max-w-4xl mx-auto px-4 py-6">
+  <div class="bg-gray-800 rounded-2xl shadow-xl px-4 py-6 sm:px-8 sm:py-10 text-center">
+    <h1 class="text-3xl font-bold lime mb-4" style="font-family: 'Space Grotesk', sans-serif;">Ask Jason; What's The Deal?</h1>
+    <div class="w-full flex justify-center mb-4">
+      <img 
+        src="https://github.com/askjasonautollc/jason-logic/blob/5dc34b38877c0ceca58d1171d1091a233bd7e0da/ChatGPT%20Image%20May%2027%2C%202025%2C%2003_06_09%20PM.png?raw=true" 
+        alt="Ask Jason Auto Logo" 
+        class="h-20 sm:h-24 object-contain rounded-md shadow-md"
+      />
+    </div>
+    <p class="text-gray-300 text-base sm:text-lg mb-6" style="font-family: 'Space Grotesk', sans-serif;">
+      Enter as much as you know—Jason can handle the blanks. Just drop in what you’ve got. Even just a screen shot of the ad! Report populates below to save or print in seconds.
+    </p>
+</div>
+
+     <form id="evaluationForm" class="space-y-6" enctype="multipart/form-data">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Your Role</label>
+            <select name="role" class="w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm">
+              <option>Buyer</option>
+              <option>Seller</option>
+              <option>Flipper</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Repair Skill</label>
+            <select name="repairSkill" class="w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm">
+             <option value="diy">DIY – I fix my own</option>
+             <option value="shop">Shop – I pay for repairs</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <input name="year" placeholder="Year" class="p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm" />
+          <input name="make" placeholder="Make" class="p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm" />
+          <input name="model" placeholder="Model" class="p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm" />
+          <input name="zip" placeholder="ZIP Code" class="p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm" />
+        </div>
+
+        <textarea name="conditionNotes" placeholder="Condition Notes/Price/Miles/Concerns/Auction, Private Party, Dealer Sale" rows="4" class="w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm"></textarea>
+        <input name="vin" type="text" placeholder="VIN Number (optional, 17 characters)" maxlength="17" class="w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm" />
+
+
+        <input type="file" name="photos" id="photos" multiple accept="image/*" class="w-full text-gray-300 text-sm" onchange="if(this.files.length > 2){ alert('Max 2 photos allowed'); this.value = ''; }" />
+
+        <div class="text-center">
+          <button type="submit" class="bg-lime text-black font-bold px-6 py-2 rounded-md shadow hover:bg-lime-dark transition">Submit for Evaluation</button>
+        </div>
+      </form>
+
+      <div id="submittedMessage" class="hidden mt-6 text-center text-gray-300 text-lg">
+        <p class="text-lime text-xl font-semibold">We got it. Jason’s running the numbers.</p>
+        <p class="text-sm text-gray-400 mt-1">Hang tight — your custom report is coming up.</p>
+        <div class="mt-6 flex justify-center gap-4 flex-wrap">
+          <a href="https://www.askjasonauto.com" class="bg-gray-700 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg shadow transition">Return to Home</a>
+          <a href="https://www.askjasonauto.com/freecore" class="bg-lime text-black font-bold px-4 py-2 rounded-lg shadow hover:bg-lime-dark transition">Run Another Deal</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="loading" class="mt-10 hidden text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div class="spinner"></div>
+        <p class="mt-4 text-lime text-lg font-semibold">Results pending…</p>
+        <p class="text-sm text-gray-400">Jason’s crunching the numbers. Hang tight.</p>
+      </div>
+    </div>
+
+    <div id="output" class="mt-10 bg-gray-900 text-gray-100 rounded-lg p-6 hidden prose prose-invert max-w-none text-base leading-7 sm:text-lg"></div>
+
+    <div id="reportActions" class="hidden mt-6 text-center">
+      <button onclick="window.print()" class="bg-lime text-black font-bold px-6 py-2 rounded-md shadow hover:bg-lime-dark transition">
+        🖨️ Print or Save Report
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('evaluationForm');
+    const output = document.getElementById('output');
+    const loading = document.getElementById('loading');
+    const submittedMsg = document.getElementById('submittedMessage');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      form.classList.add('hidden');
+      submittedMsg.classList.remove('hidden');
+      output.classList.add('hidden');
+      output.innerHTML = "";
+      loading.classList.remove('hidden');
+
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch('https://jason-logic.vercel.app/api/submitEvaluation', {
+          method: 'POST',
+          body: formData
+        });
+
+        const raw = await response.text();
+        let result = {};
+        try {
+          result = JSON.parse(raw);
+        } catch (parseErr) {
+          output.innerHTML = "<p class='text-red-400'>❌ Response was not valid JSON.</p>";
+          loading.classList.add('hidden');
+          output.classList.remove('hidden');
+          return;
+        }
+
+        loading.classList.add('hidden');
+
+        if (result?.report && typeof result.report === 'string') {
+          const raw = result.report;
+          const html = raw
+            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+            .replace(/## (.*?)\n/g, '<h2 class="text-lime-400 text-xl font-semibold mt-6 mb-2">$1</h2>')
+            .replace(/# (.*?)\n/g, '<h1 class="text-lime-400 text-2xl font-bold mt-8 mb-4">$1</h1>')
+            .replace(/- (.*?)(?=\n|$)/g, '<li>$1</li>')
+            .replace(/\n{2,}/g, '</p><p>')
+            .replace(/\n/g, '<br>')
+            .replace(/<li>(.*?)<\/li>/g, '<ul class="list-disc list-inside space-y-1 mb-4"><li>$1</li></ul>')
+            .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 text-sm p-4 rounded mb-4">$1</pre>');
+
+          output.innerHTML = `
+            <div class="space-y-6 text-sm text-gray-300 leading-relaxed bg-gray-900 rounded-xl p-6 shadow-lg">
+              ${html}
+            </div>
+          `;
+          document.getElementById('reportActions').classList.remove('hidden');
+        } else {
+          output.innerHTML = "<p class='text-yellow-300'>⚠️ No readable report returned. Check logs or backend response.</p>";
+        }
+
+output.classList.remove('hidden');
+} catch (err) {
+  loading.classList.add('hidden');
+  output.innerHTML = `<p class='text-red-400'>❌ Submit failed: ${err.message}</p>`;
+  output.classList.remove('hidden');
+}
+});
+</script>
+
+<!-- ConvertKit Centered Inline Embed -->
+<div class="flex justify-center mt-12">
+  <script async data-uid="cac1668b94" src="https://ask-jason-auto.kit.com/cac1668b94/index.js"></script>
+</div>
+
+<!-- Scroll-aware nav buttons -->
+<script>
+  const navButtons = document.getElementById('nav-buttons');
+  let lastScrollY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > lastScrollY + 10) {
+      navButtons.style.transform = 'translateY(-100%)';
+    } else if (currentScrollY < lastScrollY - 10) {
+      navButtons.style.transform = 'translateY(0)';
+    }
+    lastScrollY = currentScrollY;
+  });
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('✅ Service Worker registered:', reg))
+      .catch(err => console.error('❌ Service Worker registration failed:', err));
+  }
+</script>

@@ -1,10 +1,10 @@
 {
   "rewrites": [
-    { "source": "/founders", "destination": "/askjasonauto-site/founders.html" },
-    { "source": "/mission", "destination": "/askjasonauto-site/mission.html" },
-    { "source": "/freecore", "destination": "/askjasonauto-site/freecore.html" },
-    { "source": "/checklist", "destination": "/askjasonauto-site/checklist.html" },
-    { "source": "/redflag", "destination": "/askjasonauto-site/redflag.html" },
-    { "source": "/", "destination": "/askjasonauto-site/index.html" }
+    { "source": "/founders", "destination": "/founders.html" },
+    { "source": "/mission", "destination": "/mission.html" },
+    { "source": "/freecore", "destination": "/freecore.html" },
+    { "source": "/checklist", "destination": "/checklist.html" },
+    { "source": "/redflag", "destination": "/redflag.html" },
+    { "source": "/", "destination": "/index.html" }
   ]
 }

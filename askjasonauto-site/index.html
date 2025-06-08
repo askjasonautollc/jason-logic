@@ -1,28 +1,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Our Mission and Values – Ask Jason Auto</title>
+  <title>Ask Jason Auto – Mobile Hero</title>
+  <meta name="description" content="Ask Jason Auto shows you what a car is really worth. Built for buyers, sellers, and flippers who want raw logic, not sales BS.">
 
   <!-- 🟢 PWA Manifest + Theme Color -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#000000">
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     body {
+      font-family: 'Inter', sans-serif;
       background-color: #000;
       color: #fff;
     }
-    .accent {
-      color: #b2ff00;
-    }
-    .highlight {
-      color: #b2ff00;
-      font-weight: bold;
-    }
+    <script>
   </style>
-
-  <!-- Google tag (gtag.js) -->
+  
+  <!-- Google Ads Tag -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17130303914"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -33,75 +30,188 @@
 
   <!-- Fathom Analytics -->
   <script src="https://cdn.usefathom.com/script.js" data-site="BZGXIYBC" defer></script>
-  <!-- / Fathom -->
 </head>
-<body class="px-4 py-10 text-white bg-black">
+<body class="bg-black text-white px-4 py-0">
 
-  <!-- Top Nav Buttons -->
-  <section class="text-center mb-6 flex justify-center gap-4">
-    <a href="https://www.askjasonauto.com" class="bg-lime-500 hover:bg-lime-400 text-black font-bold py-2 px-4 rounded-full text-sm">Home</a>
-    <a href="mailto:admin@askjasonauto.com" class="bg-transparent border border-lime-500 hover:bg-lime-500 hover:text-black text-lime-500 font-bold py-2 px-4 rounded-full text-sm">Contact Jason</a>
+<!-- Scroll Tracking Script for Fathom -->
+<script>
+  document.addEventListener('scroll', function onScroll() {
+    if (window.scrollY > 200) {
+      if (typeof fathom !== 'undefined') {
+        fathom.trackEvent('scroll-depth');
+      }
+      document.removeEventListener('scroll', onScroll);
+    }
+  });
+</script>
+
+<!-- Countdown Timer Script -->
+<script>
+  function updateCountdown() {
+    const now = new Date();
+    const end = new Date("July 4, 2025 23:59:59");
+    const diff = end - now;
+    if (diff > 0) {
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const timerText = `⏳ ${days}d ${hours}h ${minutes}m Left`;
+      const el = document.getElementById("countdown-timer");
+      if (el) el.innerText = timerText;
+    }
+  }
+  setInterval(updateCountdown, 60000); // update every minute
+  window.onload = updateCountdown;
+</script>
+
+  <!-- Top CTA Banner with All Original Buttons -->
+  <div class="bg-[#111827] text-center py-4 px-2 flex flex-wrap justify-center gap-3 border-b border-lime-400">
+    <a href="mailto:admin@askjasonauto.com" class="bg-transparent border border-lime-400 hover:bg-lime-500 hover:text-black text-lime-400 font-bold py-2 px-4 rounded-full text-sm transition-transform transform hover:scale-105">
+      Contact Jason
+    </a>
+    <a href="https://www.askjasonauto.com/mission" class="bg-transparent border border-lime-400 hover:bg-lime-500 hover:text-black text-lime-400 font-bold py-2 px-4 rounded-full text-sm transition-transform transform hover:scale-105">
+      Mission and Values
+    </a>
+    <a href="https://www.askjasonauto.com/founders" class="bg-transparent border border-lime-400 hover:bg-lime-500 hover:text-black text-lime-400 font-bold py-2 px-4 rounded-full text-sm transition-transform transform hover:scale-105">
+      Founders
+    </a>
+    <a href="https://www.askjasonauto.com/redflag" class="bg-transparent border border-red-500 hover:bg-red-500 hover:text-black text-red-400 font-bold py-2 px-4 rounded-full text-sm transition-transform transform hover:scale-105">
+      Red Flag of the Day
+    </a>
+    <a href="https://www.askjasonauto.com/freecore" class="bg-lime-500 hover:bg-lime-400 text-black font-bold py-2 px-4 rounded-full text-sm transition-transform transform hover:scale-105">
+      🚗 Free Core Plan Until July 4
+    </a>
+  </div>
+
+  <!-- Headline & Subhead -->
+  <div class="text-center px-4 py-8">
+    <h1 class="text-3xl font-extrabold text-lime-400 leading-tight">
+      Smarter Than KBB. Realer Than Carfax.
+    </h1>
+    <p class="text-base text-gray-300 mt-2">
+      Built for buyers, sellers, and flippers chasing real numbers.
+    </p>
+  </div>
+
+  <!-- Hero Image -->
+  <div class="w-full max-w-sm mx-auto rounded-2xl overflow-hidden mb-6">
+    <img src="https://raw.githubusercontent.com/askjasonautollc/jason-logic/745e52e31754bf74cecf1e4ac558720a588a8596/ChatGPT%20Image%20Jun%204%2C%202025%2C%2006_19_14%20PM.png" alt="Ask Jason Auto" class="w-full h-auto rounded-xl shadow-lg" />
+  </div>
+
+<!-- Countdown CTA Above Copy -->
+<div class="text-center mb-6">
+  <a href="https://www.askjasonauto.com/freecore" class="inline-block w-full bg-lime-400 text-black font-bold py-2 px-4 rounded-full text-sm shadow hover:bg-yellow-300 transition-transform transform hover:scale-105 leading-tight">
+    🧪 Test Free Plan Now – <span id="countdown-timer">⏳</span>
+  </a>
+  <p class="text-xs text-gray-400 mt-2 font-semibold">No login. No email. No catch. Just flips. Free until July 4.</p>
+</div>
+  
+<!-- Email Signup (Clean CTA to ConvertKit Hosted Form) -->
+<section class="bg-[#111827] border border-lime-400 rounded-2xl p-6 text-center shadow-xl mb-10">
+  <h2 class="text-xl font-extrabold text-lime-400 mb-3">📬 Want Behind-the-Scenes Access?</h2>
+  <p class="text-sm text-gray-300 mb-6">Get flipping logic, launch updates, and tool drops—straight from Jason and Pablo.</p>
+  <a href="https://ask-jason-auto.kit.com/cac1668b94" target="_blank"
+     class="inline-block bg-lime-500 text-black font-bold py-3 px-6 rounded-full text-base shadow hover:bg-lime-400 transition-transform transform hover:scale-105">
+    📬 Get Insider Drops and Launch Deals
+  </a>
+</section>
+
+
+  <!-- How It Works Section -->
+<section class="bg-[#111827] border border-lime-400 rounded-2xl p-6 text-center shadow-xl mb-10">
+  <h2 class="text-2xl font-extrabold text-lime-400 mb-6">🔧 How It Works</h2>
+  <div class="space-y-6">
+    <div>
+      <h3 class="text-lg font-bold text-white mb-1">1️⃣ Start With What You Have</h3>
+      <p class="text-sm text-gray-300">Have a VIN? A screenshot? Just the basics? Drop it in. Make sure to include the price and miles at minimum.</p>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-white mb-1">2️⃣ Ask Jason Auto Runs the Logic</h3>
+      <p class="text-sm text-gray-300">You submit. We break it down—GPT logic checks risk, value, and flipping potential in seconds.</p>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-white mb-1">3️⃣ Get Instant Deal Analysis</h3>
+      <p class="text-sm text-gray-300">We show you what the seller didn’t. What’s real, what’s fake, and what that car is *really* worth.</p>
+    </div>
+  </div>
+  <div class="mt-6">
+    <img src="https://raw.githubusercontent.com/askjasonautollc/jason-logic/739124a96fbbde7120d65cd7abb69c9ba6867a19/API%20tool%20form%20image.png" alt="Upload Form Example" class="rounded-lg shadow-lg w-full max-w-md mx-auto" />
+  </div>
+  <a href="https://www.askjasonauto.com/freecore" class="mt-6 inline-block bg-lime-500 text-black font-bold py-3 px-6 rounded-full text-base shadow hover:bg-lime-400 transition-transform transform hover:scale-105">
+    🚗 Try It Free Now
+  </a>
+</section>
+
+  <!-- What You Get Section -->
+  <section class="bg-[#111827] border border-lime-400 rounded-2xl p-6 text-center shadow-xl mb-10">
+    <h2 class="text-2xl font-extrabold text-lime-400 mb-6">📊 What This Tool Breaks Down</h2>
+    <ul class="text-sm text-gray-300 space-y-4 text-left max-w-md mx-auto">
+      <li>🔧 <strong>Real cost stacks:</strong> Repairs, resale value, and flip math—all calculated.</li>
+      <li>🚩 <strong>Seller red flags:</strong> Common tricks decoded. No fluff, just traps exposed.</li>
+      <li>🧠 <strong>Ask Jason logic:</strong> Built from 60+ years of flips. This is real-world analysis.</li>
+      <li>💸 <strong>Risk vs. reward:</strong> Is this car worth it? We tell you flat out.</li>
+      <li>📈 <strong>Instant answer:</strong> No login. No spam. Just raw breakdowns in seconds.</li>
+    </ul>
+    <a href="https://www.askjasonauto.com/redflag" class="mt-6 inline-block bg-red-500 hover:bg-red-400 text-black font-bold py-3 px-6 rounded-full text-base shadow transition-transform transform hover:scale-105">
+      🚩 See a Real Red Flag Breakdown
+    </a>
   </section>
 
-  <!-- Image Below Buttons -->
-  <div class="text-center mb-10">
-    <img src="https://github.com/askjasonautollc/jason-logic/blob/f162f7b6cb7a8fdafb736bdfca6ad0b7f6720982/ChatGPT%20Image%20May%2027%2C%202025%2C%2003_06_09%20PM.png?raw=true" alt="Ask Jason Auto" class="mx-auto rounded-lg shadow-lg w-full max-w-xl" />
+<!-- Testimonials Section -->
+<section class="bg-[#111827] border border-lime-400 rounded-2xl p-6 text-center shadow-xl mb-10">
+  <h2 class="text-2xl font-extrabold text-lime-400 mb-2">💬 What People Are Saying</h2>
+  <p class="text-sm text-gray-400 mb-4">📊 Updated June 7, 2025 – based on last 7 days of verified data.</p>
+  <ul class="text-sm text-gray-300 mb-6 space-y-2">
+    <li>📈 <strong>2,500+</strong> visitors on askjasonauto.com</li>
+    <li>🚩 <strong>74,000+</strong> Facebook Red Flag of the Day post views</li>
+    <li>🌍 <strong>59,000+</strong> people reached</li>
+    <li>💬 <strong>153</strong> post interactions</li>
+    <li>👥 <strong>165</strong> new Facebook followers</li>
+    <li>✅ Meta Verified on <span class="inline-flex items-center gap-1">
+  <span>Facebook</span> <img src="/meta-icon.svg" alt="Meta" class="w-4 h-4" />,
+  <span>Instagram</span> <img src="/ig-icon.svg" alt="Instagram" class="w-4 h-4" />,
+  <span>TikTok</span> <img src="/tt-icon.svg" alt="TikTok" class="w-4 h-4" />
+</span></li>
+
+  </ul>
+  <div class="space-y-6 text-left max-w-md mx-auto text-sm text-gray-300">
+    <blockquote class="border-l-4 border-lime-400 pl-4">
+      “I was about to drop $4,500 on a car that had a blown head gasket. Ask Jason flagged it instantly.”<br><span class="text-lime-400 font-semibold">– Manuel, Dallas</span>
+    </blockquote>
+    <blockquote class="border-l-4 border-lime-400 pl-4">
+      “Finally a tool that doesn’t sugar-coat dealer scams. The logic is raw—and dead-on.”<br><span class="text-lime-400 font-semibold">– Carmen, Orlando</span>
+    </blockquote>
+    <blockquote class="border-l-4 border-lime-400 pl-4">
+      “Ask Jason saved me over $2K. It’s like having a mechanic and dealer in your pocket.”<br><span class="text-lime-400 font-semibold">– Laura, Phoenix</span>
+    </blockquote>
   </div>
+  <a href="https://www.askjasonauto.com/freecore" class="mt-6 inline-block bg-lime-500 text-black font-bold py-3 px-6 rounded-full text-base shadow hover:bg-lime-400 transition-transform transform hover:scale-105">
+    🚀 Test It for Free – Ends July 4
+  </a>
+</section>
 
-  <div class="max-w-4xl mx-auto space-y-8">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-center mb-8 accent">The Mission of Jason and Pablo: The Drive Behind Ask Jason Auto</h1>
-
-    <p class="text-lg text-gray-300">Jason and Pablo built Ask Jason Auto with one mission: end the chaos and confusion that everyday people face when buying, selling, or flipping used cars. No gimmicks, no dealership pressure, no guessing games—just real talk, proven plays, and grounded logic that put control back in the hands of the driver.</p>
-
-    <p class="text-lg text-gray-300">Together, they saw the auto world for what it really was: a minefield of shady listings, overpriced repairs, and hustlers banking on your lack of knowledge. They weren’t having it. So they built something better—a no-BS playbook for the street-smart buyer, seller, and flipper.</p>
-
-    <p class="text-lg text-gray-300">Jason brings the hands-on grit: a 30+ year veteran tech, shop owner, and seasoned flipper who’s turned rust buckets into reliable rides and lemons into cash cows. He speaks with blunt precision, backed by busted knuckles and rebuilt motors. Pablo, with over 40 years in the industry, saw the bigger picture: the need to turn Jason’s gut instincts and back-lot wisdom into tools, tech, and frameworks anyone could use, anytime, from anywhere.</p>
-
-    <p class="text-lg text-gray-300">Both are also retired U.S. Army combat veterans. That background shapes everything they do: accountability, integrity, and a mission-first mindset built on real sacrifice and hard-earned discipline. When they say no BS, they mean it. Their values were forged under fire—and now, they apply that same toughness, precision, and honor to the auto world.</p>
-
-    <p class="text-lg text-gray-300">Ask Jason Auto isn’t about being flashy. It’s about being right. It cuts through hype and rebuilds confidence. Every answer, checklist, or strategy it gives is designed to strip the emotion, see the deal clearly, and make your next move the right one. Because in the used car world, hesitation costs, and bad info burns fast.</p>
-
-    <p class="text-lg text-gray-300">The core mission? Make the used car market make sense again. Jason and Pablo aren’t here to sell you a car. They’re here to help you outsmart the guy who is. That means showing you how to inspect like a mechanic, negotiate like a flipper, and walk like a boss when the deal smells off.</p>
-
-    <p class="text-lg text-gray-300">It also means accountability. Jason doesn’t sugarcoat. If your plan is garbage, he’ll tell you. If the car you want is a trap, he’ll flag it. If you’re missing something obvious, he’ll call it out. That kind of honesty is rare in auto spaces built on commissions, ads, and ego. But Jason and Pablo built this platform for power, not profit. The kind of power that lets a single mom out-deal a lot lizard, or a first-time flipper turn a $1,200 buy into $4K clear in under a month.</p>
-
-    <h2 class="text-2xl font-bold mt-8 accent">Ask Jason Auto is built on four pillars:</h2>
-
-    <div class="space-y-6 mt-4">
-      <div>
-        <h3 class="text-xl font-bold highlight">1. Inspection Before Emotion</h3>
-        <p class="text-gray-300">Every good deal starts with a cold look at facts. Condition over color. Frame over features. You’ll learn to spot rust in the shadows, smell coolant before the engine light screams, and feel a worn suspension before you’re $800 deep in repairs. The system teaches real-world triage, walkaway signs, and simple tests anyone can run without a lift or a tech degree.</p>
-      </div>
-      <div>
-        <h3 class="text-xl font-bold highlight">2. Street-Level Math</h3>
-        <p class="text-gray-300">Forget blue book nonsense. Jason’s stack math tracks parts, labor, flip value, and real-world comps to the street. That means knowing what a Civic sells for on Craigslist with 180K and a cracked bumper—not what some app thinks. It’s practical, market-tied logic that shows you how to profit, not just "get a deal."</p>
-      </div>
-      <div>
-        <h3 class="text-xl font-bold highlight">3. Strategy Per Role</h3>
-        <p class="text-gray-300">Flipping a ride? Selling a daily? Hunting a family hauler? Every move is different. Ask Jason Auto locks in your intent first—buyer, seller, or flipper—then tailors every play from there. No generic advice. Just hyper-specific steps based on who you are, what you’re doing, and how fast you want to move.</p>
-      </div>
-      <div>
-        <h3 class="text-xl font-bold highlight">4. No BS, Ever</h3>
-        <p class="text-gray-300">No fluff. No fake urgency. No “act now” hype. The answers here are sharp, short, and proven. Jason doesn’t need you to like him—he needs you to win. That’s the difference. That’s the brand.</p>
-      </div>
-    </div>
-
-    <p class="text-lg text-gray-300 mt-6">This mission lives in every evaluation Jason does, every breakdown he writes, every time he tells someone to walk, talk, or run. It’s not about being right all the time. It’s about building instincts, confidence, and clear paths through messy, real-world deals.</p>
-
-    <p class="text-lg text-gray-300">Jason and Pablo believe that with the right info and a fearless mindset, anyone can beat the game. You don’t need to be a mechanic. You don’t need a dealer license. You just need Jason in your corner.</p>
-
-    <p class="text-lg text-gray-300">Ask Jason Auto is more than a brand. It’s a movement for people who want control, clarity, and confidence in one of the most chaotic markets out there. It’s the rebellion against overpriced shops, shady lot sharks, and overpriced fluff.</p>
-
-    <p class="text-lg text-gray-300">Jason and Pablo are building tools, tech, and community to change the way people deal with cars forever. Every message, product, and piece of content is forged from the same mission: empower people with hard math, real talk, and killer instincts.</p>
-
-    <p class="text-lg text-gray-300 font-bold">If you want truth over trends, clarity over clutter, and leverage instead of luck, you’re in the right garage.</p>
-
-    <p class="text-xl mt-4 highlight text-center">This is Ask Jason Auto. <br>This is how you win the deal. <br>This is just the start.</p>
-
-    <script src="https://f.convertkit.com/ckjs/ck.5.js"></script>
-    <div class="mt-12">
-      <script async data-uid="cac1668b94" src="https://ask-jason-auto.kit.com/cac1668b94/index.js"></script>
-    </div>
-  </div>
+  <!-- Founders Section -->
+  <section class="bg-[#111827] border border-lime-400 rounded-2xl p-6 text-center shadow-xl mb-10">
+    <h2 class="text-2xl font-extrabold text-lime-400 mb-4">🔧 Who's Behind Ask Jason Auto</h2>
+    <p class="text-sm text-gray-300 max-w-md mx-auto">
+      Jason and Pablo have flipped cars together for years. They're real business partners, not influencers—just guys who’ve done this work for real.
+    </p>
+    <p class="text-sm text-gray-300 mt-4">
+      Jason handles the operations, tech, and tool development. Pablo brings the finance, marketing, and smart money moves. Ask Jason Auto is built from what they’ve lived—and what they wish every buyer knew.
+    </p>
+    <p class="text-sm text-gray-400 mt-4 font-semibold">
+      No fluff. No sponsors. Just real logic built for real buyers.
+    </p>
+    <a href="https://www.askjasonauto.com/founders" class="mt-6 inline-block bg-black hover:bg-lime-500 text-lime-400 hover:text-black font-bold py-3 px-6 rounded-full text-sm border border-lime-400 transition-transform transform hover:scale-105">
+      Meet the Founders
+    </a>
+  </section>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('✅ Service Worker registered:', reg))
+        .catch(err => console.error('❌ Service Worker registration failed:', err));
+    }
+  </script>
 </body>
 </html>

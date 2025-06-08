@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 – This Deal’s a Dud</title>
+  <meta name="theme-color" content="#000000" />
+  <link rel="manifest" href="/manifest.json" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    .btn {
+      background-color: #C7F21D;
+      color: #000;
+      font-weight: bold;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transition: transform 0.2s ease, background 0.2s ease;
+      margin-top: 1.5rem;
+    }
+    .btn:hover {
+      background-color: #b1d81c;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <h1 class="text-4xl font-extrabold text-lime-400 mb-4">404: That Link’s a Lemon 🚫</h1>
+  <p class="text-gray-400 text-lg max-w-xl">This page doesn’t exist—or it’s been totaled. Don’t worry, Jason wouldn’t let you buy this kind of junk.</p>
+  <a href="/" class="btn">🔧 Back to Real Deals</a>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('✅ SW registered'))
+        .catch(err => console.error('❌ SW failed', err));
+    }
+  </script>
+</body>
+</html>

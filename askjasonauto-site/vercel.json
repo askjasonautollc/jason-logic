@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/founders", "destination": "/founders.html" },
+    { "source": "/mission", "destination": "/mission.html" },
+    { "source": "/freecore", "destination": "/freecore.html" },
+    { "source": "/checklist", "destination": "/checklist.html" },
+    { "source": "/redflag", "destination": "/redflag.html" },
+    { "source": "/", "destination": "/index.html" }
+  ]
+}

@@ -238,5 +238,11 @@
       .catch(err => console.error('❌ Service Worker registration failed:', err));
   }
 </script>
+  <script>
+  if (!localStorage.getItem("aja_session_id")) {
+    const sessionId = crypto.randomUUID();
+    localStorage.setItem("aja_session_id", sessionId);
+  }
+</script>
 </body>
 </html>

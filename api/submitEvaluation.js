@@ -1,4 +1,4 @@
-import { OpenAI } from "openai";
+mport { OpenAI } from "openai";
 import formidable from "formidable";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -14,7 +14,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const decodeVin = async (vin) => {
 try {
-const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
+const res = await fetch(https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json);
 const data = await res.json();
 return { source: "NHTSA", data: data.Results[0] };
 } catch (err) {
@@ -39,7 +39,7 @@ for (const [key, val] of Object.entries(fields)) {
 flatFields[key] = Array.isArray(val) ? val[0] : val;
 }
 
-   if (err) {
+if (err) {
   console.error("❌ Form parse error:", err);
   await logTraffic({ endpoint: req.url, method: req.method, statusCode: 500, request: {}, response: { error: "Form parse error" }, req });
   return res.status(500).json({ error: "Form parse error" });
@@ -57,22 +57,21 @@ try {
     decodedData = decoded.data || {};
   }
 
-  // Recall lookup
   const recallYear = year || decodedData.ModelYear || decodedData.year;
   const recallMake = make || decodedData.Make || decodedData.make;
   const recallModel = model || decodedData.Model || decodedData.model;
 
- let recallData = null;
-try {
-  const recallURL = `https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`;
-  console.log("📡 Calling recall API:", recallURL);
-  const recallRes = await fetch(recallURL);
-  if (!recallRes.ok) throw new Error(`Recall API responded with ${recallRes.status}`);
-  recallData = await recallRes.json();
-  console.log("✅ Recall data:", recallData);
-} catch (err) {
-  console.error("❌ Recall API fetch failed:", err.message);
-}
+  let recallData = null;
+  try {
+    const recallURL = `https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`;
+    console.log("📡 Calling recall API:", recallURL);
+    const recallRes = await fetch(recallURL);
+    if (!recallRes.ok) throw new Error(`Recall API responded with ${recallRes.status}`);
+    recallData = await recallRes.json();
+    console.log("✅ Recall data:", recallData);
+  } catch (err) {
+    console.error("❌ Recall API fetch failed:", err.message);
+  }
 
   const userInput = `
     Role: ${role}
@@ -87,17 +86,18 @@ try {
     Raw VIN Data:
     ${rawVinData}
 
-   ${recallData?.count > 0
-  ? `Recall Alerts (${recallData.count}):\n` +
-    recallData.results
-      .map(r => {
-        const str = r.Subject || r["Recall Description"] || "";
-        return "- " + (str.split(":")[0].split(" ").slice(0, 3).join(" ") || "Unknown issue");
-      })
-      .join('\n')
-  : 'No recall alerts found.'}
-
+    ${recallData?.count > 0
+      ? `Recall Alerts (${recallData.count}):\n` +
+        recallData.results
+          .map(r => {
+            const str = r.Subject || r["Recall Description"] || "";
+            return "- " + (str.split(":")[0].split(" ").slice(0, 3).join(" ") || "Unknown issue");
+          })
+          .join('\n')
+      : 'No recall alerts found.'}
   `.trim();
+
+  console.log("📩 userInput preview:", userInput);
 
   const thread = await openai.beta.threads.create();
   await openai.beta.threads.messages.create(thread.id, { role: "user", content: userInput });

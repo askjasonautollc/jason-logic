@@ -118,15 +118,21 @@ const userInput = [
       }
 
       const run = await openai.beta.threads.runs.create(thread.id, { assistant_id: assistantId });
-      let runStatus, retries = 0;
-      const maxRetries = 15;
 
-      do {
-        runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-        if (runStatus.status === "completed") break;
-        if (++retries > maxRetries) throw new Error("Timed out waiting for assistant response");
-        await new Promise(r => setTimeout(r, 2000));
-      } while (runStatus.status !== "completed");
+let runStatus, retries = 0;
+const maxRetries = 30; // 30 retries × 2 seconds = 60 seconds max wait
+const retryDelay = 2000;
+
+do {
+  runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+  console.log(`⏳ Run status: ${runStatus.status} (retry ${retries + 1}/${maxRetries})`);
+
+  if (runStatus.status === "completed") break;
+  if (runStatus.status === "failed") throw new Error("Assistant run failed");
+
+  if (++retries > maxRetries) throw new Error("Timed out waiting for assistant response");
+  await new Promise((resolve) => setTimeout(resolve, retryDelay));
+} while (runStatus.status !== "completed");
 
       const messages = await openai.beta.threads.messages.list(thread.id);
       const lastMessage = messages.data.find(msg => msg.role === "assistant");

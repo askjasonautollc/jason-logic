@@ -1,4 +1,4 @@
-mport { OpenAI } from "openai";
+import { OpenAI } from "openai";
 import formidable from "formidable";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -14,7 +14,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const decodeVin = async (vin) => {
 try {
-const res = await fetch(https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json);
+const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
 const data = await res.json();
 return { source: "NHTSA", data: data.Results[0] };
 } catch (err) {
@@ -60,20 +60,27 @@ try {
   const recallYear = year || decodedData.ModelYear || decodedData.year;
   const recallMake = make || decodedData.Make || decodedData.make;
   const recallModel = model || decodedData.Model || decodedData.model;
+let recallData = null;
+try {
+  const recallURL = `https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`;
+  console.log("📡 Calling recall API:", recallURL);
+  const recallRes = await fetch(recallURL);
+  if (!recallRes.ok) throw new Error(`Recall API responded with ${recallRes.status}`);
+  recallData = await recallRes.json();
+  console.log("✅ Recall data:", recallData);
+} catch (err) {
+  console.error("❌ Recall API fetch failed:", err.message);
+}
+  let recallBlock = 'No recall alerts found.';
+if (recallData?.count > 0) {
+  const items = recallData.results.map(r => {
+    const str = r.Subject || r["Recall Description"] || "";
+    return "- " + (str.split(":")[0].split(" ").slice(0, 3).join(" ") || "Unknown issue");
+  });
+  recallBlock = `Recall Alerts (${recallData.count}):\n` + items.join('\n');
+}
 
-  let recallData = null;
-  try {
-    const recallURL = `https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`;
-    console.log("📡 Calling recall API:", recallURL);
-    const recallRes = await fetch(recallURL);
-    if (!recallRes.ok) throw new Error(`Recall API responded with ${recallRes.status}`);
-    recallData = await recallRes.json();
-    console.log("✅ Recall data:", recallData);
-  } catch (err) {
-    console.error("❌ Recall API fetch failed:", err.message);
-  }
-
-  const userInput = [
+const userInputLines = [
   `Role: ${role}`,
   `Repair Skill: ${repairSkill}`,
   `Year: ${recallYear}`,
@@ -83,21 +90,14 @@ try {
   `Notes: ${conditionNotes}`,
   `VIN: ${vin}`,
   ``,
-  `Raw VIN Data:\n${rawVinData}`,
+  `Raw VIN Data:`,
+  rawVinData,
   ``,
-  recallData?.count > 0
-    ? `Recall Alerts (${recallData.count}):\n` +
-      recallData.results
-        .map(r => {
-          const str = r.Subject || r["Recall Description"] || "";
-          return "- " + (str.split(":")[0].split(" ").slice(0, 3).join(" ") || "Unknown issue");
-        })
-        .join('\n')
-    : 'No recall alerts found.'
-].join('\n').trim();
+  recallBlock
+];
 
-  console.log("📩 userInput preview:", userInput);
-
+const userInput = userInputLines.join('\n').trim();
+console.log("📩 userInput preview:", userInput);
   const thread = await openai.beta.threads.create();
   await openai.beta.threads.messages.create(thread.id, { role: "user", content: userInput });
 

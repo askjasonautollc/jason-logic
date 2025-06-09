@@ -73,29 +73,28 @@ try {
     console.error("❌ Recall API fetch failed:", err.message);
   }
 
-  const userInput = `
-    Role: ${role}
-    Repair Skill: ${repairSkill}
-    Year: ${recallYear}
-    Make: ${recallMake}
-    Model: ${recallModel}
-    ZIP Code: ${zip}
-    Notes: ${conditionNotes}
-    VIN: ${vin}
-
-    Raw VIN Data:
-    ${rawVinData}
-
-    ${recallData?.count > 0
-      ? `Recall Alerts (${recallData.count}):\n` +
-        recallData.results
-          .map(r => {
-            const str = r.Subject || r["Recall Description"] || "";
-            return "- " + (str.split(":")[0].split(" ").slice(0, 3).join(" ") || "Unknown issue");
-          })
-          .join('\n')
-      : 'No recall alerts found.'}
-  `.trim();
+  const userInput = [
+  `Role: ${role}`,
+  `Repair Skill: ${repairSkill}`,
+  `Year: ${recallYear}`,
+  `Make: ${recallMake}`,
+  `Model: ${recallModel}`,
+  `ZIP Code: ${zip}`,
+  `Notes: ${conditionNotes}`,
+  `VIN: ${vin}`,
+  ``,
+  `Raw VIN Data:\n${rawVinData}`,
+  ``,
+  recallData?.count > 0
+    ? `Recall Alerts (${recallData.count}):\n` +
+      recallData.results
+        .map(r => {
+          const str = r.Subject || r["Recall Description"] || "";
+          return "- " + (str.split(":")[0].split(" ").slice(0, 3).join(" ") || "Unknown issue");
+        })
+        .join('\n')
+    : 'No recall alerts found.'
+].join('\n').trim();
 
   console.log("📩 userInput preview:", userInput);
 

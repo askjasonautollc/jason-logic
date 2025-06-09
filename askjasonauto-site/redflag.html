@@ -1,247 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Buyer Checklist – Ask Jason Auto</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Flag of the Day – Ask Jason Auto</title>
 
   <!-- 🟢 PWA Manifest + Theme Color -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#000000">
 
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #0B0B0B;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      background-color: #000;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
     }
-    .lime {
-      color: #C7F21D;
+    .accent {
+      color: #b2ff00;
     }
-    .bg-lime {
-      background-color: #C7F21D;
+    .highlight {
+      color: #b2ff00;
+      font-weight: bold;
     }
-    .hover\:bg-lime-dark:hover {
-      background-color: #b1d81c;
-    }
-    .section-card {
-      background-color: #1E293B;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-      margin-bottom: 2.5rem;
-      page-break-inside: avoid;
-    }
-    .section-title {
-      color: #C7F21D;
-      font-size: 1.25rem;
-      font-weight: 800;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid #C7F21D;
-      padding-bottom: 0.5rem;
-    }
-    .section-content p {
-      margin-bottom: 0.75rem;
-      color: #F3F4F6;
-      line-height: 1.7;
-    }
-    .section-content strong {
-      color: #ffffff;
-    }
-    .print-btn {
+    .kit-hanging {
       position: fixed;
       top: 1rem;
       right: 1rem;
       z-index: 50;
-      background-color: #C7F21D;
-      color: #000;
+      background: #b2ff00;
+      color: black;
+      padding: 0.75rem 1.25rem;
       font-weight: bold;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      border-radius: 9999px;
+      box-shadow: 0 10px 15px rgba(0,0,0,0.3);
+      transform: rotate(-3deg);
+      transition: transform 0.2s ease;
     }
-    .print-logo {
-      display: none;
-      text-align: center;
-      margin-top: 2rem;
+    .kit-hanging:hover {
+      transform: rotate(0deg) scale(1.05);
     }
-    .print-logo img {
-      width: 150px;
-      height: auto;
-      margin: 0 auto;
-    }
-    @media print {
-      body, .section-card, .notes-box {
-        background: #fff !important;
-        color: #000 !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
+    @media (max-width: 640px) {
+      .kit-hanging {
+        top: auto;
+        bottom: 1rem;
+        right: 50%;
+        transform: translateX(50%) rotate(-2deg);
       }
-      .print-hidden {
-        display: none !important;
-      }
-      .print-logo {
-        display: block !important;
-      }
-      .print-footer {
-        display: block !important;
-      }
-    }
-    .print-footer {
-      display: none;
-      text-align: center;
-      color: #888;
-      font-size: 0.75rem;
-      margin-top: 2rem;
-    }
-    .notes-box {
-      background: #ffffff;
-      color: #000;
-      border: 1px solid #888;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      margin-top: 1rem;
-      height: 5rem;
     }
   </style>
-  <script src="https://cdn.usefathom.com/script.js" data-site="BZGXIYBC" defer></script>
 </head>
-<body class="text-white text-base leading-relaxed sm:text-base">
-  <button class="print-btn print-hidden" onclick="window.print()">🖨️ Print or Save</button>
-  <div class="max-w-4xl mx-auto px-4 py-6">
-    <div class="text-center mb-6 print-hidden">
-      <a href="/" class="inline-block bg-lime text-black font-semibold text-sm px-6 py-2 rounded-md hover:bg-lime-dark transition shadow">Return to Home</a>
+<body class="px-6 py-12 bg-black text-white relative">
+  <!-- Hanging Kit Banner -->
+  <a href="https://ask-jason-auto.kit.com/cac1691a13" target="_blank" rel="noopener noreferrer" class="kit-hanging">
+    📋 Free Checklist: Avoid Bad Deals
+  </a>
+
+  <!-- Top Navigation -->
+  <nav class="fixed top-0 left-0 right-0 bg-black bg-opacity-90 backdrop-blur-sm py-4 z-40 shadow-md">
+    <div class="max-w-5xl mx-auto flex justify-center gap-4 flex-wrap">
+      <a href="https://www.askjasonauto.com" class="bg-lime-500 hover:bg-lime-400 text-black font-bold py-2 px-6 rounded-full text-sm shadow-md transition-transform transform hover:scale-105">Home</a>
+      <a href="mailto:admin@askjasonauto.com" class="bg-transparent border border-lime-500 hover:bg-lime-500 hover:text-black text-lime-500 font-bold py-2 px-6 rounded-full text-sm shadow-md transition-transform transform hover:scale-105">Email Us</a>
     </div>
+  </nav>
 
-    <div class="print-logo">
-      <img src="https://github.com/askjasonautollc/jason-logic/blob/f162f7b6cb7a8fdafb736bdfca6ad0b7f6720982/ChatGPT%20Image%20May%2027%2C%202025%2C%2003_06_09%20PM.png?raw=true" alt="Ask Jason Auto Logo">
-    </div>
+  <main class="max-w-3xl mx-auto pt-28 pb-32 space-y-16">
+    <!-- Header -->
+    <section class="text-center space-y-4">
+      <h1 class="text-5xl font-extrabold accent">🚩 Red Flag of the Day</h1>
+      <p class="text-base text-gray-300">Real sellers. Real traps. Posted daily. Stay smart.</p>
+    </section>
 
-    <div class="bg-[#1E293B] rounded-2xl shadow-xl px-4 py-6 sm:px-8 sm:py-10 text-left">
-      <h1 class="text-3xl font-bold mb-2 text-center lime">Jason’s Smart Buyer Checklist</h1>
-      <p class="text-center text-sm text-gray-400 italic mb-6">“If it smells like lies and knocks like debt, walk.” – Jason</p>
-      <p class="text-center text-sm text-gray-300 max-w-xl mx-auto mb-10">New to buying or flipping cars? This checklist walks you through every major red flag—Jason-style—and gives you a space to track what you find.</p>
+    <!-- Red Flags -->
+    <section class="space-y-16">
 
-      <div class="space-y-8">
-        <!-- Section 1 -->
-        <div class="section-card">
-          <h2 class="section-title">1. “It Just Needs a Sensor”</h2>
-          <div class="section-content">
-            <p>🔧 If a seller says this, it usually means they're hiding something. Don’t assume it's cheap or simple.</p>
-            <p><strong>Ask:</strong> “What sensor exactly? Have you had it diagnosed?”</p>
-            <p><strong>Note any warning lights you see:</strong> ___________________________</p>
-            <p><strong>If you have a scanner:</strong> Plug in and scan for codes—most auto parts stores will do this for free.</p>
-            <ul class="list-disc list-inside text-sm text-gray-400">
-              <li>No scanner? Ask to drive it to AutoZone or O’Reilly—most will check for free.</li>
-              <li>If there are codes, look them up online for your car’s year/make/model.</li>
-              <li>Be wary if they say it was "just cleared" or recently reset.</li>
-              <li>More than one code = more than one problem.</li>
-            </ul>
-            <div class="notes-box">Notes:</div>
-          </div>
+      <!-- June 8, 2025 -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold text-lime-400 text-center">June 8, 2025</h2>
+        <div class="flex justify-center">
+          <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fpermalink.php%3Fstory_fbid%3Dpfbid02nUtbQ4QgMjqX9eDeA7jRmUuRmJBiBTybTa5z2GNkQMrFJeZHo4R1RoJCpbDjmDpXl%26id%3D61576893002015&show_text=true&width=500" width="500" height="577" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
         </div>
-
-        <!-- Repeat this note box for Sections 2–5 -->
-        <div class="section-card">
-          <h2 class="section-title">2. “No Title on Me”</h2>
-          <div class="section-content">
-            <p>📄 No title match = walk. That’s not a deal. That’s a risk.</p>
-            <ul class="list-disc list-inside text-sm text-gray-400">
-              <li>Match title name to license ID</li>
-              <li>Check for open reassignments (back of title)</li>
-              <li>Use VIN to verify title and lien status</li>
-              <li>Don’t accept “I’m selling for a friend”</li>
-            </ul>
-            <div class="notes-box">Notes:</div>
-          </div>
+      </div>
+    
+    <!-- June 7, 2025 -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold text-lime-400 text-center">June 7, 2025</h2>
+        <div class="flex justify-center">
+          <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fpermalink.php%3Fstory_fbid%3Dpfbid0S9K5m2mzddeRGEKraoCq6qL1HjFKGCkMTm1zHAdDU5YwpDkZktRz7mV7GWoYWyC8l%26id%3D61576893002015&show_text=true&width=500" width="500" height="535" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
         </div>
-
-        <div class="section-card">
-          <h2 class="section-title">3. “Check Engine Light’s Always On”</h2>
-          <div class="section-content">
-            <p>🚨 The oldest excuse. Could be emissions, misfire, evap leak, or worse.</p>
-            <ul class="list-disc list-inside text-sm text-gray-400">
-              <li>Scan for codes and readiness monitors</li>
-              <li>Ask if it recently passed emissions or inspection</li>
-              <li>If monitors aren’t ready, codes were cleared</li>
-              <li>Estimate repair cost before you buy</li>
-            </ul>
-            <div class="notes-box">Notes:</div>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <h2 class="section-title">4. “It Drives Fine But…”</h2>
-          <div class="section-content">
-            <p>🛞 Always test drive. Let the car prove it’s solid.</p>
-            <ul class="list-disc list-inside text-sm text-gray-400">
-              <li>Drive 55–65 mph. Listen for vibration or hum</li>
-              <li>Brake test: it shouldn’t pull or pulsate</li>
-              <li>Check all tires for wear patterns</li>
-              <li>Look under the car after the drive—new leaks?</li>
-            </ul>
-            <div class="notes-box">Notes:</div>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <h2 class="section-title">5. “Clean Title, Just Cosmetic”</h2>
-          <div class="section-content">
-            <p>🚘 Paint hides damage. Don’t get duped.</p>
-            <ul class="list-disc list-inside text-sm text-gray-400">
-              <li>Check all panel gaps: hood, trunk, doors</li>
-              <li>Look for overspray on trim and seals</li>
-              <li>Use a magnet or paint meter to find filler</li>
-              <li>Ask if airbags have ever been deployed</li>
-            </ul>
-            <div class="notes-box">Notes:</div>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <h2 class="section-title">Seller Script: What to Say</h2>
-          <div class="section-content">
-            <p><strong>“I just want to make a smart buy. Can I ask you a few quick things?”</strong></p>
-            <ul class="list-disc list-inside text-sm text-gray-400">
-              <li>“Is the title in your name and here with the car?”</li>
-              <li>“Do you know what code the CEL is throwing?”</li>
-              <li>“Any crash history or airbag deployment?”</li>
-              <li>“If it all checks out, what’s your best cash price?”</li>
-            </ul>
-            <div class="notes-box">Notes:</div>
-          </div>
-        </div>
-
-        <div class="section-card text-center text-sm text-gray-300 italic">
-          “Jason always says: <strong class="text-white">you never lose the money you don’t spend</strong>... if it’s a bad deal, <strong class="text-white">you walk, and live to buy another day.</strong>”
-          <br>
-          <span class="block text-sm text-lime-300 mt-4">Or upgrade Ask Jason to give you more answers in your pocket.</span>
+      </div>
+      
+      <!-- June 6, 2025 -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold text-lime-400 text-center">June 6, 2025</h2>
+        <div class="flex justify-center">
+          <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fpermalink.php%3Fstory_fbid%3Dpfbid0HN4hSHXc87ke8WirAsoWJhWRVR1PYAsfiWu9oGsQSw7NoMPtUBkVQDq5SKaACnSDl%26id%3D61576893002015&show_text=true&width=500" width="500" height="545" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
         </div>
       </div>
 
-      <div class="text-center pt-8 print-hidden">
-        <a href="https://www.askjasonauto.com/redflag" class="inline-block bg-red-500 hover:bg-red-400 text-black font-bold py-3 px-6 rounded-full text-base shadow-md transition-transform transform hover:scale-105">
-          🔎 Browse More Red Flags
-        </a>
+      <!-- June 3, 2025 -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold text-lime-400 text-center">June 3, 2025</h2>
+        <div class="flex justify-center">
+          <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fpermalink.php%3Fstory_fbid%3Dpfbid02JsDF95zJ1j8Dri9ttqAjAUwFriMuycktJD7SA2outE2VMtvD2ZvuShwpLaWdmP7Pl%26id%3D61576893002015&show_text=true&width=500" width="500" height="577" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+        </div>
       </div>
-    </div>
 
-    <div class="print-footer">
-      &copy; 2025 Ask Jason Auto LLC. All rights reserved. Custom logic and checklist system licensed exclusively to Ask Jason Auto.
-    </div>
-  </div>
+      <!-- June 2, 2025 -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold text-lime-400 text-center">June 2, 2025</h2>
+        <div class="flex justify-center">
+          <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fpermalink.php%3Fstory_fbid%3Dpfbid02CatNfkZ38gPnLvawGmynvW7g8pCDj1iWvGp1K14AyP9JqbgtR4QDZp5uLhRA4Kdml%26id%3D61576893002015&show_text=true&width=500" width="500" height="558" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+        </div>
+      </div>
+
+      <!-- June 1, 2025 -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold text-lime-400 text-center">June 1, 2025</h2>
+        <div class="flex justify-center">
+          <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fpermalink.php%3Fstory_fbid%3Dpfbid02C9mTkfgfvtiqMyjpTa46kTh7xAupJLr6XnEFPv2dXJ1TPNqMKRrHxS1j9LcUTuf7l%26id%3D61576893002015&show_text=true&width=500" width="500" height="803" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+        </div>
+      </div>
+
+      <!-- May 31, 2025 -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold text-lime-400 text-center">May 31, 2025</h2>
+        <div class="flex justify-center">
+          <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fpermalink.php%3Fstory_fbid%3Dpfbid0X8AooCw5T5wjaANJgKDK3NkpxD3LNQptqXRAnpe8DCbxn4F857Egvx1fhfYmeubMl%26id%3D61576893002015&show_text=true&width=500" width="500" height="582" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- Subscribe CTA -->
+    <section class="text-center space-y-6">
+      <p class="text-gray-300 max-w-xl mx-auto">Want every Red Flag first? Subscribe to get alerts, tools, and launch access.</p>
+      <script async data-uid="cac1668b94" src="https://ask-jason-auto.kit.com/cac1668b94/index.js"></script>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-sm text-gray-500 mt-16 pb-4">
+    &copy; 2025 Ask Jason Auto LLC. All rights reserved. Custom logic, language, and GPT framework licensed exclusively to Ask Jason Auto.
+  </footer>
   <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
       .then(reg => console.log('✅ Service Worker registered:', reg))
       .catch(err => console.error('❌ Service Worker registration failed:', err));
-  }
-</script>
-  <script>
-  if (!localStorage.getItem("aja_session_id")) {
-    const sessionId = crypto.randomUUID();
-    localStorage.setItem("aja_session_id", sessionId);
   }
 </script>
 </body>

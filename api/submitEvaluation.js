@@ -97,22 +97,22 @@ export default async function handler(req, res) {
       ];
 
       const userInput = [
-        `👤 Role: ${role}`,
-        `🔧 Repair Skill: ${repairSkill}`,
-        `🚗 Year: ${recallYear}`,
-        `🏷️ Make: ${recallMake}`,
-        `📄 Model: ${recallModel}`,
-        `📍 ZIP Code: ${zip}`,
-        `📝 Notes: ${conditionNotes || "No user notes provided."}`,
-        `🔍 VIN: ${vin || "Not provided"}`,
-        `🪙 Auction Source: ${auctionSource || "Not specified"}`,
-        "",
-        "🧾 Raw VIN Data:",
-        rawVinData || "No decoded VIN data available.",
-        "",
-        recallBlock,
-        ...systemPrimer
-      ].join('\n').trim();
+  `👤 Role: ${role}`,
+  `🔧 Repair Skill: ${repairSkill}`,
+  `🚗 Year: ${recallYear}`,
+  `🏷️ Make: ${recallMake}`,
+  `📄 Model: ${recallModel}`,
+  `📍 ZIP Code: ${zip}`,
+  `📝 Notes: ${conditionNotes?.trim() ? conditionNotes : "Not specified by user"}`,
+  `🔍 VIN: ${vin || "Not provided"}`,
+  `🪙 Auction Source: ${auctionSource || "Not specified"}`,
+  "",
+  "🧾 Raw VIN Data:",
+  rawVinData || "No decoded VIN data available.",
+  "",
+  recallBlock,
+  ...systemPrimer
+].join('\n').trim();
 
       console.log("📩 userInput preview:", userInput);
 

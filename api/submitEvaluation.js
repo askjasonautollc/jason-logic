@@ -75,8 +75,9 @@ export default async function handler(req, res) {
 
       let recallBlock = 'No recall alerts found.';
 if (recallData?.count > 0 && Array.isArray(recallData.summaries)) {
-  recallBlock = `Recall Alerts (${recallData.count}):\n` +
-    recallData.summaries.map(s => `- ${s}`).join('\n');
+ recallBlock = `\n⚠️ Recall Alerts (${recallData.count}):\n` +
+  recallData.summaries.map((s, i) => `${i + 1}. ${s}`).join('\n') +
+  `\n\n⚠️ List each recall above exactly as shown—1 bullet per recall. Do not summarize, skip, or rewrite.`;
 }
 
 const userInput = [

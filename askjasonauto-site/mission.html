@@ -1,32 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meet the Founders – Ask Jason Auto</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Mission – Ask Jason Auto</title>
+  <meta name="description" content="The mission behind Ask Jason Auto – built for car buyers, sellers, and flippers who want truth over hype.">
 
   <!-- 🟢 PWA Manifest + Theme Color -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#000000">
 
+  <!-- Tailwind CSS + Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    body {
-      background-color: #000;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-    }
-    .accent {
-      color: #b2ff00;
-    }
-    .highlight {
-      color: #b2ff00;
-      font-weight: bold;
-    }
-  </style>
 
-  <!-- Google tag (gtag.js) -->
+  <!-- Google Ads Tag -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17130303914"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -37,59 +25,105 @@
 
   <!-- Fathom Analytics -->
   <script src="https://cdn.usefathom.com/script.js" data-site="BZGXIYBC" defer></script>
-  <!-- / Fathom -->
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #000;
+      color: #fff;
+    }
+    .accent {
+      color: #b2ff00;
+    }
+    .highlight {
+      color: #b2ff00;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body class="px-6 py-12 bg-black text-white">
-  <main class="max-w-5xl mx-auto space-y-16">
-    <header class="text-center space-y-4">
-      <h1 class="text-5xl font-extrabold tracking-tight accent">Meet the Founders</h1>
-      <p class="text-lg text-gray-300">Real experience. Zero BS. The veterans behind Ask Jason Auto.</p>
-    </header>
+  <!-- Scroll Tracking for Fathom -->
+  <script>
+    document.addEventListener('scroll', function onScroll() {
+      if (window.scrollY > 200) {
+        if (typeof fathom !== 'undefined') {
+          fathom.trackEvent('scroll-depth');
+        }
+        document.removeEventListener('scroll', onScroll);
+      }
+    });
+  </script>
 
-    <section class="grid md:grid-cols-2 gap-12">
-      <div class="text-center space-y-4">
-        <img src="https://github.com/askjasonautollc/jason-logic/blob/1d715671c99a759afc2ba97317d0e902c99e6dee/IMG_4362.jpg?raw=true" alt="Jason Langrehr" class="w-32 h-32 object-cover object-center rounded-full mx-auto">
-        <h2 class="text-2xl font-semibold">Jason Langrehr</h2>
-        <p class="text-sm text-lime-400 font-semibold">Founder · U.S. Army Veteran</p>
-        <p class="text-sm text-gray-300">Jason brings 20+ years of elite-level flipping, buying, and selling—zero failed deals. His gift: decoding car logic and spotting BS in under 60 seconds. Known for straight talk and smarter flips, he’s the brain behind the buyer protection AI.</p>
-      </div>
-      <div class="text-center space-y-4">
-        <img src="https://github.com/askjasonautollc/jason-logic/blob/f162f7b6cb7a8fdafb736bdfca6ad0b7f6720982/Screenshot%202025-05-26%20211817.png?raw=true" alt="Pablo Pena-Navarro" class="w-32 h-32 object-cover object-center rounded-full mx-auto">
-        <h2 class="text-2xl font-semibold">Pablo Pena-Navarro</h2>
-        <p class="text-sm text-lime-400 font-semibold">COO · U.S. Army Veteran</p>
-        <p class="text-sm text-gray-300">Pablo’s the operations engine. With 30+ years of certified diagnostics and repair systems experience, he’s led high-stakes teams and built tools that don’t fail. Every logic path, every tech connection—runs through Pablo’s filter of precision and accountability.</p>
-      </div>
-    </section>
+  <header class="text-center mb-12">
+    <h1 class="text-4xl font-extrabold accent mb-2">🚘 Our Mission</h1>
+    <p class="text-sm text-gray-400 max-w-xl mx-auto">No fluff. No hype. Just raw logic to help car buyers, sellers, and flippers win smarter.</p>
+  </header>
 
-    <section class="text-center space-y-6">
-      <h3 class="text-2xl font-bold accent">Why These Two Built Ask Jason Auto</h3>
-      <p class="text-gray-300 max-w-2xl mx-auto">
-        They’ve both seen too many buyers get scammed. Too many sellers leave money on the table. Too many flippers eat losses because no one taught them the math. So they’re fixing it—from the ground up.
+  <section class="max-w-3xl mx-auto space-y-10">
+    <div class="bg-[#111827] border border-lime-400 rounded-2xl p-6 shadow-xl">
+      <h2 class="text-2xl font-bold text-lime-400 mb-4">Why We Exist</h2>
+      <p class="text-sm text-gray-300 leading-relaxed">
+        Most car buying advice is either corporate, outdated, or just straight-up wrong. Ask Jason Auto was built because buyers deserve better. Our mission is to give people an edge—not just a checklist, but the real logic behind smart decisions.
       </p>
-      <p class="text-sm text-gray-400">
-        Built by real pros for real people. Veteran-owned. Logic-driven. Hustle-tested.
+    </div>
+
+    <div class="bg-[#111827] border border-lime-400 rounded-2xl p-6 shadow-xl">
+      <h2 class="text-2xl font-bold text-lime-400 mb-4">Who We Serve</h2>
+      <p class="text-sm text-gray-300 leading-relaxed">
+        We’re here for first-time buyers, experienced flippers, and anyone sick of dealer BS. Whether you’re buying a $1,500 beater or flipping five cars a month, our tools give you real answers, fast.
       </p>
-      <a href="https://www.askjasonauto.com" class="inline-block mt-6 bg-lime-500 hover:bg-lime-400 text-black font-bold py-3 px-8 rounded-full text-base shadow">
-        Back to Main Site
-      </a>
-    </section>
-  </main>
+    </div>
+
+    <div class="bg-[#111827] border border-lime-400 rounded-2xl p-6 shadow-xl">
+      <h2 class="text-2xl font-bold text-lime-400 mb-4">What We Believe</h2>
+      <ul class="text-sm text-gray-300 space-y-3 list-disc list-inside">
+        <li>🚫 You don’t need a dealer’s approval to buy smart</li>
+        <li>📉 Overpaying is optional</li>
+        <li>💡 Simple logic beats flashy ads</li>
+        <li>💰 Every buyer deserves clarity before they spend</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="max-w-3xl mx-auto mt-16">
+    <h2 class="text-2xl font-extrabold text-lime-400 mb-6 text-center">🧠 Real-World Examples That Proved This Tool Needs to Exist</h2>
+    <ul class="border-l-2 border-lime-400 pl-6 space-y-8">
+      <!-- Real-world examples inserted here -->
+      <!-- Same structure as above with year headers and bullet points -->
+    </ul>
+  </section>
+
+  <section class="max-w-xl mx-auto text-center mt-16">
+    <h2 class="text-xl font-bold text-lime-400 mb-2">📬 Want Hot Deal Alerts & Drops?</h2>
+    <p class="text-sm text-gray-400 mb-4">Get the smartest flips, recalls, alerts, and insider drops sent to your inbox. No fluff.</p>
+    <a href="https://ask-jason-auto.kit.com/cac1668b94" target="_blank" class="inline-block bg-lime-500 hover:bg-lime-400 text-black font-bold py-3 px-6 rounded-full text-base shadow transition-transform transform hover:scale-105">
+      🔥 Subscribe for Breaking Info
+    </a>
+  </section>
+
+  <div class="text-center mt-10">
+    <a href="/" class="inline-block bg-black border border-lime-400 hover:bg-lime-500 text-lime-400 hover:text-black font-bold py-3 px-6 rounded-full text-sm transition-transform transform hover:scale-105">
+      ← Return to Home
+    </a>
+  </div>
 
   <footer class="text-center text-sm text-gray-500 mt-16 pb-4">
-    &copy; 2025 Ask Jason Auto LLC. All rights reserved. Custom logic, language, and GPT framework licensed exclusively to Ask Jason Auto.
+    &copy; 2025 Ask Jason Auto LLC. All rights reserved.
   </footer>
+
+  <!-- PWA + Session Tracking -->
   <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => console.log('✅ Service Worker registered:', reg))
-      .catch(err => console.error('❌ Service Worker registration failed:', err));
-  }
-</script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('✅ Service Worker registered:', reg))
+        .catch(err => console.error('❌ Service Worker registration failed:', err));
+    }
+  </script>
   <script>
-  if (!localStorage.getItem("aja_session_id")) {
-    const sessionId = crypto.randomUUID();
-    localStorage.setItem("aja_session_id", sessionId);
-  }
-</script>
+    if (!localStorage.getItem("aja_session_id")) {
+      const sessionId = crypto.randomUUID();
+      localStorage.setItem("aja_session_id", sessionId);
+    }
+  </script>
 </body>
 </html>

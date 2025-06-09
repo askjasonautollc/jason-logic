@@ -62,13 +62,17 @@ try {
   const recallMake = make || decodedData.Make || decodedData.make;
   const recallModel = model || decodedData.Model || decodedData.model;
 
-  let recallData = null;
-  try {
-    const recallRes = await fetch(`https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`);
-    recallData = await recallRes.json();
-  } catch (err) {
-    console.error("Recall API error:", err.message);
-  }
+ let recallData = null;
+try {
+  const recallURL = `https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`;
+  console.log("📡 Calling recall API:", recallURL);
+  const recallRes = await fetch(recallURL);
+  if (!recallRes.ok) throw new Error(`Recall API responded with ${recallRes.status}`);
+  recallData = await recallRes.json();
+  console.log("✅ Recall data:", recallData);
+} catch (err) {
+  console.error("❌ Recall API fetch failed:", err.message);
+}
 
   const userInput = `
     Role: ${role}

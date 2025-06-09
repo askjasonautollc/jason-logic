@@ -74,29 +74,26 @@ export default async function handler(req, res) {
       }
 
       let recallBlock = 'No recall alerts found.';
-      if (recallData?.count > 0) {
-        const items = recallData.results.map(r => {
-          const str = r.Subject || r["Recall Description"] || "";
-          return "- " + (str.split(":")[0].split(" ").slice(0, 3).join(" ") || "Unknown issue");
-        });
-        recallBlock = `Recall Alerts (${recallData.count}):\n` + items.join('\n');
-      }
+if (recallData?.count > 0 && Array.isArray(recallData.summaries)) {
+  recallBlock = `Recall Alerts (${recallData.count}):\n` +
+    recallData.summaries.map(s => `- ${s}`).join('\n');
+}
 
-      const userInput = [
-        `Role: ${role}`,
-        `Repair Skill: ${repairSkill}`,
-        `Year: ${recallYear}`,
-        `Make: ${recallMake}`,
-        `Model: ${recallModel}`,
-        `ZIP Code: ${zip}`,
-        `Notes: ${conditionNotes}`,
-        `VIN: ${vin}`,
-        ``,
-        `Raw VIN Data:`,
-        rawVinData,
-        ``,
-        recallBlock
-      ].join('\n').trim();
+const userInput = [
+  `Role: ${role}`,
+  `Repair Skill: ${repairSkill}`,
+  `Year: ${recallYear}`,
+  `Make: ${recallMake}`,
+  `Model: ${recallModel}`,
+  `ZIP Code: ${zip}`,
+  `Notes: ${conditionNotes}`,
+  `VIN: ${vin}`,
+  ``,
+  `Raw VIN Data:`,
+  rawVinData,
+  ``,
+  recallBlock
+].join('\n').trim();
 
       console.log("📩 userInput preview:", userInput);
 

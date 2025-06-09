@@ -9,12 +9,11 @@ export default function handler(req, res) {
   }
 
   const dataDir = path.join(process.cwd(), 'data');
-
-  const allChunks = ['recalls-part-1.json', 'recalls-part-2.json', 'recalls-part-3.json'];
+  const chunks = ['recalls-part-1.json', 'recalls-part-2.json', 'recalls-part-3.json'];
   let recalls = [];
 
   try {
-    for (const file of allChunks) {
+    for (const file of chunks) {
       const raw = fs.readFileSync(path.join(dataDir, file), 'utf8');
       recalls = recalls.concat(JSON.parse(raw));
     }

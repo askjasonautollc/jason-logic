@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
     try {
       const assistantId = process.env.OPENAI_ASSISTANT_ID;
-      const { role, repairSkill, year, make, model, zip, conditionNotes, vin } = flatFields;
+      const { role, repairSkill, year, make, model, zip, conditionNotes, vin, auctionSource } = flatFields;
 
       let decodedData = {};
       let rawVinData = "";
@@ -57,9 +57,9 @@ export default async function handler(req, res) {
         decodedData = decoded.data || {};
       }
 
-      const recallYear = year || decodedData.ModelYear || decodedData.year;
-      const recallMake = make || decodedData.Make || decodedData.make;
-      const recallModel = model || decodedData.Model || decodedData.model;
+      const recallYear = year || decodedData.ModelYear || decodedData.year || new Date().getFullYear();
+      const recallMake = make || decodedData.Make || decodedData.make || "";
+      const recallModel = model || decodedData.Model || decodedData.model || "";
 
       let recallData = null;
       try {
@@ -74,27 +74,45 @@ export default async function handler(req, res) {
       }
 
       let recallBlock = 'No recall alerts found.';
-if (recallData?.count > 0 && Array.isArray(recallData.summaries)) {
- recallBlock = `\n⚠️ Recall Alerts (${recallData.count}):\n` +
-  recallData.summaries.map((s, i) => `${i + 1}. ${s}`).join('\n') +
-  `\n\n⚠️ List each recall above exactly as shown—1 bullet per recall. Do not summarize, skip, or rewrite.`;
-}
+      if (recallData?.count > 0 && Array.isArray(recallData.summaries)) {
+        recallBlock = `\n⚠️ Recall Alerts (${recallData.count}):\n` +
+          recallData.summaries.map((s, i) => `${i + 1}. ${s}`).join('\n') +
+          `\n\n⚠️ List each recall above exactly as shown—1 bullet per recall. Do not summarize, skip, or rewrite.`;
+      }
 
-const userInput = [
-  `Role: ${role}`,
-  `Repair Skill: ${repairSkill}`,
-  `Year: ${recallYear}`,
-  `Make: ${recallMake}`,
-  `Model: ${recallModel}`,
-  `ZIP Code: ${zip}`,
-  `Notes: ${conditionNotes}`,
-  `VIN: ${vin}`,
-  ``,
-  `Raw VIN Data:`,
-  rawVinData,
-  ``,
-  recallBlock
-].join('\n').trim();
+      const systemPrimer = [
+        "",
+        "---",
+        `You are Jason from Ask Jason Auto. The user is a ${role} with ${repairSkill} skill. This is a vehicle evaluation. Use logic to fill in missing data. You MUST:",
+        "- Estimate mileage if missing (15k/year).",
+        "- Estimate private party value from known trends.",
+        "- Estimate repair costs using common failures and user notes.",
+        "- If no price is given, calculate a 'Max Payable' (buyer) or 'Max Bid' (auction).",
+        "- If auction: always include buyer fee (12.5%), tax/title ($300–$900), and repair risk.",
+        "- If flipper: show margin math, target 100% ROI.",
+        "- Do NOT suggest walking away due to recalls—list them, note fixability.",
+        "- Always end with one verdict: ✅ TALK / 🚪 WALK / ❌ RUN.",
+        "- Format in clean markdown tables with vertical bars and dividers.",
+        "- Use '---' to break each section. NEVER omit the money breakdown."
+      ];
+
+      const userInput = [
+        `👤 Role: ${role}`,
+        `🔧 Repair Skill: ${repairSkill}`,
+        `🚗 Year: ${recallYear}`,
+        `🏷️ Make: ${recallMake}`,
+        `📄 Model: ${recallModel}`,
+        `📍 ZIP Code: ${zip}`,
+        `📝 Notes: ${conditionNotes || "No user notes provided."}`,
+        `🔍 VIN: ${vin || "Not provided"}`,
+        `🪙 Auction Source: ${auctionSource || "Not specified"}`,
+        "",
+        "🧾 Raw VIN Data:",
+        rawVinData || "No decoded VIN data available.",
+        "",
+        recallBlock,
+        ...systemPrimer
+      ].join('\n').trim();
 
       console.log("📩 userInput preview:", userInput);
 
@@ -119,27 +137,24 @@ const userInput = [
 
       const run = await openai.beta.threads.runs.create(thread.id, { assistant_id: assistantId });
 
-let runStatus, retries = 0;
-const maxRetries = 30; // 30 retries × 2 seconds = 60 seconds max wait
-const retryDelay = 2000;
+      let runStatus, retries = 0;
+      const maxRetries = 30;
+      const retryDelay = 2000;
 
-do {
-  runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-  console.log(`⏳ Run status: ${runStatus.status} (retry ${retries + 1}/${maxRetries})`);
-
-  if (runStatus.status === "completed") break;
-  if (runStatus.status === "failed") throw new Error("Assistant run failed");
-
-  if (++retries > maxRetries) throw new Error("Timed out waiting for assistant response");
-  await new Promise((resolve) => setTimeout(resolve, retryDelay));
-} while (runStatus.status !== "completed");
+      do {
+        runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+        console.log(`⏳ Run status: ${runStatus.status} (retry ${retries + 1}/${maxRetries})`);
+        if (runStatus.status === "completed") break;
+        if (runStatus.status === "failed") throw new Error("Assistant run failed");
+        if (++retries > maxRetries) throw new Error("Timed out waiting for assistant response");
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      } while (runStatus.status !== "completed");
 
       const messages = await openai.beta.threads.messages.list(thread.id);
       const lastMessage = messages.data.find(msg => msg.role === "assistant");
       const markdown = lastMessage?.content?.[0]?.text?.value || "No report generated.";
 
       await logTraffic({ endpoint: req.url, method: req.method, statusCode: 200, request: flatFields, response: { report: markdown }, session_id: flatFields.session_id, req });
-
       return res.status(200).json({ report: markdown });
 
     } catch (e) {

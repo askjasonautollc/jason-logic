@@ -84,7 +84,9 @@ export default async function handler(req, res) {
     Object.entries(fields).forEach(([k, v]) => {
       flatFields[k] = Array.isArray(v) ? v[0] : v;
     });
-    const { conditionNotes = "", session_id, ...otherFields } = flatFields;
+  const { conditionNotes = "", session_id, ...otherFields } = flatFields;
+   const listingLinks = extractRelevantURLs(conditionNotes);
+
 
     if (err) {
       console.error("Form parse error:", err);
@@ -236,8 +238,8 @@ export default async function handler(req, res) {
         const uploadFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
         for (const photo of uploadFiles.slice(0,2)) {
           if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {
-           const stream = fs.createReadStream(photo.filepath);
-const fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
+           let stream = fs.createReadStream(photo.filepath);
+let fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
 
 await openai.beta.threads.messages.create(thread.id, {
   role: "user",

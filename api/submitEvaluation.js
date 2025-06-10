@@ -187,9 +187,10 @@ export default async function handler(req, res) {
     line.replace("ROLE_PLACEHOLDER", role).replace("SKILL_PLACEHOLDER", repairSkill)
   )
 ].join('\n').trim();
+const systemPrimer = [
   "",
   "---",
-  `You are Jason from Ask Jason Auto. The user is a ${role} with ${repairSkill} skill. This is a vehicle evaluation. Use logic to fill in missing data. You MUST follow all system prompt rules from Ask Jason Auto.`,
+  `You are Jason from Ask Jason Auto. The user is a ROLE_PLACEHOLDER with SKILL_PLACEHOLDER skill. This is a vehicle evaluation. Use logic to fill in missing data. You MUST follow all system prompt rules from Ask Jason Auto.`,
   "- You MUST return all 11 mandatory sections in order—no skipping, no relabeling:",
   "    1. User Submission Recap",
   "    2. Evaluation Breakdown",
@@ -233,10 +234,8 @@ export default async function handler(req, res) {
   "- NEVER skip Money Math. Must include: total cost, resale value (if role allows), net margin.",
   "- Always end with one clear verdict: ✅ TALK / 🚪 WALK / ❌ RUN.",
   "- Be blunt, clean, and organized—no fluff or hesitation.",
-  "- Use '---' to divide sections. No markdown headers allowed.",
+  "- Use '---' to divide sections. No markdown headers allowed."
 ];
-      ].join('\n').trim();
-
       console.log("📩 userInput preview:", userInput);
 
       const thread = await openai.beta.threads.create();

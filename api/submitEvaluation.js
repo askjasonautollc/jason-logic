@@ -243,8 +243,14 @@ let fileRec = await openai.files.create({ file: stream, purpose: "assistants" })
 
 await openai.beta.threads.messages.create(thread.id, {
   role: "user",
-  content: "Attached vehicle photo for review.",
-  attachments: [{ file_id: fileRec.id, tools: [{ type: "code_interpreter" }] }]
+  content: `Describe what you see in this image:
+- Identify the vehicle's make, model, year, and any visible trim or badging, from text or image
+- Read any visible dash lights or messages
+- Estimate mileage from the odometer if visible
+- Call out red flags in the environment (e.g., gravel lot, wooded backdrop, non-residential building)
+- Flag signs of flip behavior (e.g., over-detailed engine bay, out-of-state plate, missing VIN tags)
+- Note any visible damage, wear, or evidence of recent quick-fix work
+Add this image intelligence to the final evaluation.`,
 });
 
 await openai.beta.threads.messages.create(thread.id, {

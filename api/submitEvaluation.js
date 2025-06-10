@@ -251,9 +251,24 @@ export default async function handler(req, res) {
           if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {
             const stream = fs.createReadStream(photo.filepath);
             const fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
-            await openai.beta.threads.messages.create(thread.id, {
+            const stream = fs.createReadStream(photo.filepath);
+const fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
+
+await openai.beta.threads.messages.create(thread.id, {
   role: "user",
-  content: "Review attached vehicle photos. Extract visible vehicle info (make, model, year, mileage, dash status). Flag signs of seller risk (bad backdrop, over-detailed bay, dash warnings, sketchy title indicators).",
+  content: "Attached vehicle photo for review.",
+  attachments: [{ file_id: fileRec.id, tools: [{ type: "code_interpreter" }] }]
+});
+
+// Explicit follow-up instruction after image is available in thread
+await openai.beta.threads.messages.create(thread.id, {
+  role: "user",
+  content: `Evaluate this image for:
+- Visible vehicle info (make, model, year, mileage, dash status)
+- Dash warning lights (CEL, ABS, TPMS, airbag)
+- Red flags: backdrop (woods, gravel, out-of-state tag), over-detailed engine bay, seller/dealer sketch cues
+- Anything that affects resale, safety, or inspection urgency.
+Include this in your full evaluation.`,
 });
           }
         }

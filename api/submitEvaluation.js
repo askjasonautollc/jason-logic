@@ -1,7 +1,9 @@
+// Add at the top
 import { OpenAI } from "openai";
 import formidable from "formidable";
 import fs from "fs";
 import fetch from "node-fetch";
+import cheerio from "cheerio";
 import { logTraffic } from "../logTraffic.js";
 
 export const config = {
@@ -22,6 +24,30 @@ const decodeVin = async (vin) => {
     return { source: "error", error: err.message };
   }
 };
+
+const extractRelevantURLs = (text) => {
+  const urlRegex = /(https?:\/\/[\w.-]+\.(?!facebook)(copart|iaai|govdeals|bringatrailer|carsandbids|com|net|org)[^\s]*)/gi;
+  return text?.match(urlRegex) || [];
+};
+
+const fetchListingData = async (url) => {
+  try {
+    const res = await fetch(url);
+    const html = await res.text();
+    const $ = cheerio.load(html);
+
+    const title = $('title').text().trim();
+    const price = $('[class*="price" i]').first().text().trim();
+    const mileage = $('[class*="mileage" i], [class*="odometer" i]').first().text().trim();
+    const condition = $('[class*="condition" i]').first().text().trim();
+
+    return { url, title, price, mileage, condition };
+  } catch (e) {
+    console.warn("Listing page scrape failed:", e.message);
+    return null;
+  }
+};
+
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -60,6 +86,23 @@ export default async function handler(req, res) {
       const recallYear = year || decodedData.ModelYear || decodedData.year || new Date().getFullYear();
       const recallMake = make || decodedData.Make || decodedData.make || "";
       const recallModel = model || decodedData.Model || decodedData.model || "";
+
+      const listingLinks = extractRelevantURLs(conditionNotes);
+      let listingDetailBlock = "";
+      if (listingLinks.length > 0) {
+        const listingData = await fetchListingData(listingLinks[0]);
+        if (listingData) {
+          listingDetailBlock = [
+            "📄 External Listing Details:",
+            `🔗 URL: ${listingData.url}`,
+            `📝 Title: ${listingData.title || "Not found"}`,
+            `💰 Price: ${listingData.price || "Not found"}`,
+            `📍 Mileage: ${listingData.mileage || "Not found"}`,
+            `📋 Condition: ${listingData.condition || "Not found"}`,
+            "---"
+          ].join('\n');
+        }
+      }
 
       const recallURL = `https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`;
 
@@ -119,7 +162,31 @@ export default async function handler(req, res) {
           formatResults("Possible Auction History", vinData);
       }
 
-const systemPrimer = [
+      const systemPrimer = ["<insert your updated systemPrimer block here>"];
+
+      const userInput = [
+  listingDetailBlock,
+  `👤 Role: ${role}`,
+  `🔧 Repair Skill: ${repairSkill}`,
+  `🚗 Year: ${recallYear}`,
+  `🏷️ Make: ${recallMake}`,
+  `📄 Model: ${recallModel}`,
+  `📍 ZIP Code: ${zip}`,
+  `📝 Notes: ${conditionNotes?.trim() ? conditionNotes : "Not specified by user"}`,
+  `🔍 VIN: ${vin || "Not provided"}`,
+  `🪙 Auction Source: ${auctionSource || "Not specified"}`,
+  "",
+  "🧾 Raw VIN Data:",
+  rawVinData || "No decoded VIN data available.",
+  "",
+  recallBlock,
+  "",
+  "🧠 External Search Results:",
+  searchSummary,
+  ...systemPrimer.map(line =>
+    line.replace("ROLE_PLACEHOLDER", role).replace("SKILL_PLACEHOLDER", repairSkill)
+  )
+].join('\n').trim();
   "",
   "---",
   `You are Jason from Ask Jason Auto. The user is a ${role} with ${repairSkill} skill. This is a vehicle evaluation. Use logic to fill in missing data. You MUST follow all system prompt rules from Ask Jason Auto.`,
@@ -168,26 +235,6 @@ const systemPrimer = [
   "- Be blunt, clean, and organized—no fluff or hesitation.",
   "- Use '---' to divide sections. No markdown headers allowed.",
 ];
-
-      const userInput = [
-        `👤 Role: ${role}`,
-        `🔧 Repair Skill: ${repairSkill}`,
-        `🚗 Year: ${recallYear}`,
-        `🏷️ Make: ${recallMake}`,
-        `📄 Model: ${recallModel}`,
-        `📍 ZIP Code: ${zip}`,
-        `📝 Notes: ${conditionNotes?.trim() ? conditionNotes : "Not specified by user"}`,
-        `🔍 VIN: ${vin || "Not provided"}`,
-        `🪙 Auction Source: ${auctionSource || "Not specified"}`,
-        "",
-        "🧾 Raw VIN Data:",
-        rawVinData || "No decoded VIN data available.",
-        "",
-        recallBlock,
-        "",
-        "🧠 External Search Results:",
-        searchSummary,
-        ...systemPrimer
       ].join('\n').trim();
 
       console.log("📩 userInput preview:", userInput);

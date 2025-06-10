@@ -255,16 +255,6 @@ await openai.beta.threads.messages.create(thread.id, {
 Include this in your full evaluation.`,
 });
 
-// Explicit follow-up instruction after image is available in thread
-await openai.beta.threads.messages.create(thread.id, {
-  role: "user",
-  content: `Evaluate this image for:
-- Visible vehicle info (make, model, year, mileage, dash status)
-- Dash warning lights (CEL, ABS, TPMS, airbag)
-- Red flags: backdrop (woods, gravel, out-of-state tag), over-detailed engine bay, seller/dealer sketch cues
-- Anything that affects resale, safety, or inspection urgency.
-Include this in your full evaluation.`,
-});
           }
         }
       }

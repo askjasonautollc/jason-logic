@@ -252,10 +252,9 @@ export default async function handler(req, res) {
             const stream = fs.createReadStream(photo.filepath);
             const fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
             await openai.beta.threads.messages.create(thread.id, {
-              role: "user",
-              content: "Attached vehicle photo for review.",
-              attachments: [{ file_id: fileRec.id, tools: [{ type: "code_interpreter" }] }]
-            });
+  role: "user",
+  content: "Review attached vehicle photos. Extract visible vehicle info (make, model, year, mileage, dash status). Flag signs of seller risk (bad backdrop, over-detailed bay, dash warnings, sketchy title indicators).",
+});
           }
         }
       }

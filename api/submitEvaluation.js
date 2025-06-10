@@ -94,19 +94,6 @@ export default async function handler(req, res) {
       });
       return res.status(500).json({ error: "Form parse error" });
     }
-
-    // SHORT-CIRCUIT: only a URL provided
-    const listingLinks = extractRelevantURLs(conditionNotes);
-    const nonNoteKeys = Object.keys(otherFields).filter(k => otherFields[k]);
-    if (listingLinks.length === 1 && nonNoteKeys.length === 0) {
-      const listing = await fetchListingData(listingLinks[0]);
-      await logTraffic({
-        endpoint: req.url, method: req.method, statusCode: 200,
-        request: flatFields, response: { listing }, session_id, req
-      });
-      return res.status(200).json({ listing });
-    }
-
     // FULL PIPELINE
     try {
       const { role, repairSkill, year, make, model, zip, vin } = flatFields;
@@ -249,11 +236,25 @@ export default async function handler(req, res) {
         const uploadFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
         for (const photo of uploadFiles.slice(0,2)) {
           if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {
-            const stream = fs.createReadStream(photo.filepath);
-            const fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
-            const stream = fs.createReadStream(photo.filepath);
+           const stream = fs.createReadStream(photo.filepath);
 const fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
 
+await openai.beta.threads.messages.create(thread.id, {
+  role: "user",
+  content: "Attached vehicle photo for review.",
+  attachments: [{ file_id: fileRec.id, tools: [{ type: "code_interpreter" }] }]
+});
+
+// Explicit follow-up instruction after image is available in thread
+await openai.beta.threads.messages.create(thread.id, {
+  role: "user",
+  content: `Evaluate this image for:
+- Visible vehicle info (make, model, year, mileage, dash status)
+- Dash warning lights (CEL, ABS, TPMS, airbag)
+- Red flags: backdrop (woods, gravel, out-of-state tag), over-detailed engine bay, seller/dealer sketch cues
+- Anything that affects resale, safety, or inspection urgency.
+Include this in your full evaluation.`,
+});
 await openai.beta.threads.messages.create(thread.id, {
   role: "user",
   content: "Attached vehicle photo for review.",

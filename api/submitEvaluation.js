@@ -70,35 +70,67 @@ export default async function handler(req, res) {
 
   const form = formidable({ multiples: true, allowEmptyFiles: true, minFileSize: 0 });
 
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      console.error("Form parse error:", err);
-      await logTraffic({ endpoint: req.url, method: req.method, statusCode: 500, request: {}, response: { error: "Form parse error" }, session_id: "", req });
-      return res.status(500).json({ error: "Form parse error" });
-    }
+  try {
+   form.parse(req, async (err, fields, files) => {
+  if (err) {
+    console.error("Form parse error:", err);
+    await logTraffic({
+      endpoint: req.url,
+      method: req.method,
+      statusCode: 500,
+      request: {},
+      response: { error: "Form parse error" },
+      session_id: "",
+      req,
+    });
+    return res.status(500).json({ error: "Form parse error" });
+  }
 
-    try {
-      const flatFields = {};
-      Object.entries(fields).forEach(([k, v]) => {
-        flatFields[k] = Array.isArray(v) ? v[0] : v;
-      });
+  try {
+    const flatFields = {};
+    Object.entries(fields).forEach(([k, v]) => {
+      flatFields[k] = Array.isArray(v) ? v[0] : v;
+    });
 
-      const { conditionNotes = "", session_id, ...otherFields } = flatFields;
-      const listingLinks = extractRelevantURLs(conditionNotes);
+    // 🔽 Your full logic continues here (decodeVin, search, OpenAI thread, etc.)
 
-      const { role, repairSkill, year, make, model, zip, vin } = flatFields;
-      let decodedData = {}, rawVinData = "";
-      if (vin) {
-        try {
-          const decoded = await decodeVin(vin);
-          rawVinData = JSON.stringify(decoded.data, null, 2);
-          decodedData = decoded.data || {};
-        } catch (err) {
-          console.error("VIN decode block failed:", err.message);
-          rawVinData = "";
-          decodedData = {};
-        }
+    return res.status(200).json({ report });
+
+  } catch (error) {
+    console.error("❌ Evaluation error:", error);
+    await logTraffic({
+      endpoint: req.url,
+      method: req.method,
+      statusCode: 500,
+      request: fields,
+      response: { error: error.message },
+      session_id: "",
+      req,
+    });
+    return res.status(500).json({ error: "Evaluation failed" });
+  }
+});
+      
+
+      } catch (error) {
+        console.error("❌ Evaluation error:", error);
+        await logTraffic({
+          endpoint: req.url,
+          method: req.method,
+          statusCode: 500,
+          request: fields,
+          response: { error: error.message },
+          session_id: "",
+          req,
+        });
+        return res.status(500).json({ error: "Evaluation failed" });
       }
+    });
+  } catch (outerErr) {
+    console.error("❌ Top-level handler error:", outerErr);
+    return res.status(500).json({ error: "Handler failure" });
+  }
+}
 
       const recallYear = year || decodedData.ModelYear || new Date().getFullYear();
       const recallMake = make || decodedData.Make || "";

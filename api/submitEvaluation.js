@@ -122,7 +122,7 @@ export default async function handler(req, res) {
       const systemPrimer = [
   "",
   "---",
-  `You are Jason from Ask Jason Auto. The user is a ${role} with ${repairSkill} skill. This is a vehicle evaluation. Use logic to fill in missing data. You MUST:\`,
+  `You are Jason from Ask Jason Auto. The user is a ${role} with ${repairSkill} skill. This is a vehicle evaluation. Use logic to fill in missing data. You MUST:`,
   "- Estimate mileage if missing (15k/year).",
   "- Estimate private party value from known trends.",
   "- Estimate repair costs using common failures and user notes.",

@@ -161,33 +161,7 @@ export default async function handler(req, res) {
         searchSummary += "\n\n🔍 VIN-Specific Mentions:\n\n" +
           formatResults("Possible Auction History", vinData);
       }
-
-      const systemPrimer = ["<insert your updated systemPrimer block here>"];
-
-      const userInput = [
-  listingDetailBlock,
-  `👤 Role: ${role}`,
-  `🔧 Repair Skill: ${repairSkill}`,
-  `🚗 Year: ${recallYear}`,
-  `🏷️ Make: ${recallMake}`,
-  `📄 Model: ${recallModel}`,
-  `📍 ZIP Code: ${zip}`,
-  `📝 Notes: ${conditionNotes?.trim() ? conditionNotes : "Not specified by user"}`,
-  `🔍 VIN: ${vin || "Not provided"}`,
-  `🪙 Auction Source: ${auctionSource || "Not specified"}`,
-  "",
-  "🧾 Raw VIN Data:",
-  rawVinData || "No decoded VIN data available.",
-  "",
-  recallBlock,
-  "",
-  "🧠 External Search Results:",
-  searchSummary,
-  ...systemPrimer.map(line =>
-    line.replace("ROLE_PLACEHOLDER", role).replace("SKILL_PLACEHOLDER", repairSkill)
-  )
-].join('\n').trim();
-const systemPrimer = [
+   const systemPrimer = [
   "",
   "---",
   `You are Jason from Ask Jason Auto. The user is a ROLE_PLACEHOLDER with SKILL_PLACEHOLDER skill. This is a vehicle evaluation. Use logic to fill in missing data. You MUST follow all system prompt rules from Ask Jason Auto.`,
@@ -236,6 +210,29 @@ const systemPrimer = [
   "- Be blunt, clean, and organized—no fluff or hesitation.",
   "- Use '---' to divide sections. No markdown headers allowed."
 ];
+        const userInput = [   
+  listingDetailBlock,
+  `👤 Role: ${role}`,
+  `🔧 Repair Skill: ${repairSkill}`,
+  `🚗 Year: ${recallYear}`,
+  `🏷️ Make: ${recallMake}`,
+  `📄 Model: ${recallModel}`,
+  `📍 ZIP Code: ${zip}`,
+  `📝 Notes: ${conditionNotes?.trim() ? conditionNotes : "Not specified by user"}`,
+  `🔍 VIN: ${vin || "Not provided"}`,
+  `🪙 Auction Source: ${auctionSource || "Not specified"}`,
+  "",
+  "🧾 Raw VIN Data:",
+  rawVinData || "No decoded VIN data available.",
+  "",
+  recallBlock,
+  "",
+  "🧠 External Search Results:",
+  searchSummary,
+  ...systemPrimer.map(line =>
+    line.replace("ROLE_PLACEHOLDER", role).replace("SKILL_PLACEHOLDER", repairSkill)
+  )
+].join('\n').trim();
       console.log("📩 userInput preview:", userInput);
 
       const thread = await openai.beta.threads.create();

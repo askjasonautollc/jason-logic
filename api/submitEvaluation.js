@@ -71,19 +71,9 @@ export default async function handler(req, res) {
   const form = formidable({ multiples: true, allowEmptyFiles: true, minFileSize: 0 });
 
   try {
-   form.parse(req, async (err, fields, files) => {
+  form.parse(req, async (err, fields, files) => {
   if (err) {
-    console.error("Form parse error:", err);
-    await logTraffic({
-      endpoint: req.url,
-      method: req.method,
-      statusCode: 500,
-      request: {},
-      response: { error: "Form parse error" },
-      session_id: "",
-      req,
-    });
-    return res.status(500).json({ error: "Form parse error" });
+    // handle parse error
   }
 
   try {
@@ -91,6 +81,25 @@ export default async function handler(req, res) {
     Object.entries(fields).forEach(([k, v]) => {
       flatFields[k] = Array.isArray(v) ? v[0] : v;
     });
+
+    // 🔽 All your logic goes here: decodeVin, search, threading, etc.
+
+    return res.status(200).json({ report }); // final success response
+
+  } catch (error) {
+    console.error("❌ Evaluation error:", error);
+    await logTraffic({
+      endpoint: req.url,
+      method: req.method,
+      statusCode: 500,
+      request: flatFields,
+      response: { error: error.message },
+      session_id: "",
+      req,
+    });
+    return res.status(500).json({ error: "Evaluation failed" });
+  }
+});
 
     // 🔽 Your full logic continues here (decodeVin, search, OpenAI thread, etc.)
 

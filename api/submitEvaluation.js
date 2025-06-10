@@ -78,15 +78,6 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const form = formidable({ multiples: true, allowEmptyFiles: true, minFileSize: 0 });
- form.parse(req, async (err, fields, files) => {
-  if (err) {
-    console.error("Form parse error:", err);
-    await logTraffic({
-      endpoint: req.url, method: req.method, statusCode: 500,
-      request: {}, response: { error: "Form parse error" }, session_id: "", req
-    });
-    return res.status(500).json({ error: "Form parse error" });
-  }
 
   try {
     const flatFields = {};

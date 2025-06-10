@@ -108,12 +108,27 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <input name="year" placeholder="Year" class="p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm" />
-          <input name="make" placeholder="Make" class="p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm" />
-          <input name="model" placeholder="Model" class="p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm" />
-          <input name="zip" placeholder="ZIP Code" class="p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm" />
-        </div>
+       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <input name="year" type="number" placeholder="Year (e.g. 2004)" required minlength="4" maxlength="4"
+    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+
+  <input name="make" placeholder="Make (e.g. Ford)" required
+    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+
+  <input name="model" placeholder="Model (e.g. Focus)" required
+    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+  <input name="zip" type="text" placeholder="ZIP Code (5 digits)" required pattern="\d{5}" maxlength="5"
+    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+
+  <input name="price" type="number" placeholder="Price (USD)" required min="1"
+    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+
+  <input name="mileage" type="number" placeholder="Mileage" required min="1"
+    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+</div>
 
         <textarea name="conditionNotes" placeholder="Condition Notes/Price/Miles/Concerns/Auction, Private Party, Dealer Sale" rows="4" class="w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm"></textarea>
         <input name="vin" type="text" placeholder="VIN Number (optional, 17 characters)" maxlength="17" class="w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm" />

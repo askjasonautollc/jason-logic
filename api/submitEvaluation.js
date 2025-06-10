@@ -116,11 +116,11 @@ try {
   ]);
 
   const formatResults = (title, data) => {
-    if (!data.items?.length) return `${title}\nNo results found.\n`;
-    return `${title}\n\n` + data.items.slice(0, 5).map((item, i) =>
-      `${i + 1}. **${item.title}**\n${item.snippet}\n🔗 ${item.link}`
-    ).join('\n\n');
-  };
+  if (!data.items?.length) return `${title}\nNo results found.\n`;
+  return `${title}\n\n` + data.items.slice(0, 3).map((item, i) =>
+    `${i + 1}. **${item.title}**\n${item.snippet}\n🔗 ${item.link}`
+  ).join('\n\n');
+};
 
   searchSummary = [
     "🌐 External Market Search:",
@@ -176,17 +176,17 @@ try {
       const run = await openai.beta.threads.runs.create(thread.id, { assistant_id: assistantId });
 
       let runStatus, retries = 0;
-      const maxRetries = 30;
-      const retryDelay = 2000;
+const maxRetries = 20;
+const retryDelay = 1500;
 
-      do {
-        runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-        console.log(`⏳ Run status: ${runStatus.status} (retry ${retries + 1}/${maxRetries})`);
-        if (runStatus.status === "completed") break;
-        if (runStatus.status === "failed") throw new Error("Assistant run failed");
-        if (++retries > maxRetries) throw new Error("Timed out waiting for assistant response");
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-      } while (runStatus.status !== "completed");
+do {
+  runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+  console.log(`⏳ Run status: ${runStatus.status} (retry ${retries + 1}/${maxRetries})`);
+  if (runStatus.status === "completed") break;
+  if (runStatus.status === "failed") throw new Error("Assistant run failed");
+  if (++retries > maxRetries) throw new Error("Timed out waiting for assistant response");
+  await new Promise(resolve => setTimeout(resolve, retryDelay));
+} while (runStatus.status !== "completed");
 
       const messages = await openai.beta.threads.messages.list(thread.id);
       const lastMessage = messages.data.find(msg => msg.role === "assistant");

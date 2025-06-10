@@ -244,12 +244,13 @@ export default async function handler(req, res) {
       await openai.beta.threads.messages.create(thread.id, { role: "user", content: userPrompt });
 
       // Attach up to 2 photos
-      if (files.photos) {
-        const uploadFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
-        for (const photo of uploadFiles.slice(0,2)) {
-          if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {
-           let stream = fs.createReadStream(photo.filepath);
-let fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
+     if (files.photos) {
+  const uploadFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
+  for (const photo of uploadFiles.slice(0,2)) {
+    if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {
+      try {
+        let stream = fs.createReadStream(photo.filepath);
+        let fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
 
 await openai.beta.threads.messages.create(thread.id, {
   role: "user",
@@ -272,11 +273,12 @@ await openai.beta.threads.messages.create(thread.id, {
 - Anything that affects resale, safety, or inspection urgency.
 Include this in your full evaluation.`,
 });
-
-          }
-        }
+ } catch (err) {
+        console.error("Image processing failed:", err.message);
       }
-
+    }
+  }
+}
       // Run & poll
       const run = await openai.beta.threads.runs.create(thread.id, { assistant_id: process.env.OPENAI_ASSISTANT_ID });
       let runStatus; const retryDelay = 1500; const timeoutLimit = 60000; const startTime = Date.now();

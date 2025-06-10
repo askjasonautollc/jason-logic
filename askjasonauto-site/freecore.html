@@ -109,13 +109,20 @@
         </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-  <div>
-    <label class="block text-sm font-medium text-gray-300 mb-1">
-      Year <span class="text-red-500">*</span>
-    </label>
-    <input name="year" type="number" placeholder="Year (e.g. 2004)" required minlength="4" maxlength="4"
-      class="peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
-  </div>
+ <div>
+  <label class="block text-sm font-medium text-gray-300 mb-1">
+    Year <span class="text-red-500">*</span>
+  </label>
+  <select name="year" id="year" required
+    class="w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500">
+    <option value="">Select Year</option>
+    <!-- 1950–2025 -->
+    ${Array.from({length: 2025 - 1950 + 1}, (_, i) => {
+      const year = 2025 - i;
+      return `<option value="${year}">${year}</option>`;
+    }).join('')}
+  </select>
+</div>
 
   <div>
     <label class="block text-sm font-medium text-gray-300 mb-1">

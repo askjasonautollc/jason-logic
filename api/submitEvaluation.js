@@ -95,7 +95,40 @@ export default async function handler(req, res) {
         "- Format in clean markdown tables with vertical bars and dividers.",
         "- Use '---' to break each section. NEVER omit the money breakdown."
       ];
+// Optional Dual Web Search Enrichment
+let searchSummary = "No external search results found.";
 
+try {
+  const retailQuery = `${recallYear} ${recallMake} ${recallModel} value OR price OR common issues site:autotrader.com OR site:cargurus.com OR site:cars.com`;
+  const auctionQuery = `${recallYear} ${recallMake} ${recallModel} auction results OR sold prices site:copart.com OR site:iaai.com OR site:bringatrailer.com OR site:carsandbids.com`;
+
+  const searchGoogle = async (query) => {
+    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${process.env.GOOGLE_SEARCH_API_KEY}&cx=${process.env.GOOGLE_SEARCH_ENGINE_ID}`;
+    const res = await fetch(url);
+    return await res.json();
+  };
+
+  const [retailData, auctionData] = await Promise.all([
+    searchGoogle(retailQuery),
+    searchGoogle(auctionQuery),
+  ]);
+
+  const formatResults = (title, data) => {
+    if (!data.items?.length) return `${title}\nNo results found.\n`;
+    return `${title}\n\n` + data.items.slice(0, 5).map((item, i) =>
+      `${i + 1}. **${item.title}**\n${item.snippet}\n🔗 ${item.link}`
+    ).join('\n\n');
+  };
+
+  searchSummary = [
+    "🌐 External Market Search:",
+    formatResults("🏷️ Retail Pricing & Issues", retailData),
+    formatResults("🏁 Auction Results", auctionData)
+  ].join('\n\n');
+
+} catch (err) {
+  console.error("❌ Web search enrichment failed:", err.message);
+}
       const userInput = [
   `👤 Role: ${role}`,
   `🔧 Repair Skill: ${repairSkill}`,
@@ -111,6 +144,7 @@ export default async function handler(req, res) {
   rawVinData || "No decoded VIN data available.",
   "",
   recallBlock,
+  searchSummary, //
   ...systemPrimer
 ].join('\n').trim();
 

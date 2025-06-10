@@ -96,7 +96,7 @@ export default async function handler(req, res) {
         } catch (err) {
           console.error("VIN decode block failed:", err.message);
           rawVinData = "";
-          decodedData - {};
+          decodedData = {};
         }
       }
 

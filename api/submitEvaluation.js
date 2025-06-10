@@ -100,13 +100,19 @@ export default async function handler(req, res) {
     try {
       const { role, repairSkill, year, make, model, zip, vin } = flatFields;
 
-      // VIN decode
-      let decodedData = {}, rawVinData = "";
-      if (vin) {
-        const decoded = await decodeVin(vin);
-        rawVinData = JSON.stringify(decoded.data, null, 2);
-        decodedData = decoded.data || {};
-      }
+     // VIN decode
+let decodedData = {}, rawVinData = "";
+if (vin) {
+  try {
+    const decoded = await decodeVin(vin);
+    rawVinData = JSON.stringify(decoded.data, null, 2);
+    decodedData = decoded.data || {};
+  } catch (err) {
+    console.error("VIN decode block failed:", err.message);
+    rawVinData = "";
+    decodedData = {};
+  }
+}
 
       // Recall API
       const recallYear = year || decodedData.ModelYear || decodedData.year || new Date().getFullYear();

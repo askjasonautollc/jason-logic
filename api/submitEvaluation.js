@@ -12,7 +12,6 @@ export const config = { api: { bodyParser: false } };
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Fetch wrapper with timeout
 function fetchWithTimeout(url, opts = {}, ms = 5000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
@@ -21,13 +20,9 @@ function fetchWithTimeout(url, opts = {}, ms = 5000) {
   return promise;
 }
 
-// VIN decode via NHTSA
 async function decodeVin(vin) {
   try {
-    const res = await fetchWithTimeout(
-      `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`,
-      {}, 5000
-    );
+    const res = await fetchWithTimeout(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`, {}, 5000);
     const data = await res.json();
     return { source: "NHTSA", data: data.Results[0] };
   } catch (err) {
@@ -36,13 +31,11 @@ async function decodeVin(vin) {
   }
 }
 
-// URL extractor
 function extractRelevantURLs(text) {
   const urlRegex = /(https?:\/\/[\w.-]+\.(?!facebook)(copart|iaai|govdeals|bringatrailer|carsandbids|com|net|org)[^\s]*)/gi;
   return text?.match(urlRegex) || [];
 }
 
-// Cheerio scrape
 async function fetchListingData(url) {
   try {
     const res = await fetchWithTimeout(url, {}, 5000);
@@ -61,7 +54,6 @@ async function fetchListingData(url) {
   }
 }
 
-// Google Custom Search
 async function searchGoogle(query) {
   const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${process.env.GOOGLE_SEARCH_API_KEY}&cx=${process.env.GOOGLE_SEARCH_ENGINE_ID}`;
   const res = await fetchWithTimeout(url, {}, 5000);
@@ -69,7 +61,6 @@ async function searchGoogle(query) {
 }
 
 export default async function handler(req, res) {
-  // CORS preflight
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -79,50 +70,39 @@ export default async function handler(req, res) {
 
   const form = formidable({ multiples: true, allowEmptyFiles: true, minFileSize: 0 });
 
-  try {
-    const flatFields = {};
-    Object.entries(fields).forEach(([k, v]) => {
-      flatFields[k] = Array.isArray(v) ? v[0] : v;
-    });
-
-    const { conditionNotes = "", session_id, ...otherFields } = flatFields;
-    const listingLinks = extractRelevantURLs(conditionNotes);
-
-
+  form.parse(req, async (err, fields, files) => {
     if (err) {
       console.error("Form parse error:", err);
-      await logTraffic({
-        endpoint: req.url, method: req.method, statusCode: 500,
-        request: flatFields, response: { error: "Form parse error" }, session_id, req
-      });
+      await logTraffic({ endpoint: req.url, method: req.method, statusCode: 500, request: {}, response: { error: "Form parse error" }, session_id: "", req });
       return res.status(500).json({ error: "Form parse error" });
     }
-    // FULL PIPELINE
+
     try {
+      const flatFields = {};
+      Object.entries(fields).forEach(([k, v]) => {
+        flatFields[k] = Array.isArray(v) ? v[0] : v;
+      });
+
+      const { conditionNotes = "", session_id, ...otherFields } = flatFields;
+      const listingLinks = extractRelevantURLs(conditionNotes);
+
       const { role, repairSkill, year, make, model, zip, vin } = flatFields;
+      let decodedData = {}, rawVinData = "";
+      if (vin) {
+        try {
+          const decoded = await decodeVin(vin);
+          rawVinData = JSON.stringify(decoded.data, null, 2);
+          decodedData = decoded.data || {};
+        } catch (err) {
+          console.error("VIN decode block failed:", err.message);
+        }
+      }
 
-     // VIN decode
-let decodedData = {}, rawVinData = "";
-if (vin) {
-  try {
-    const decoded = await decodeVin(vin);
-    rawVinData = JSON.stringify(decoded.data, null, 2);
-    decodedData = decoded.data || {};
-  } catch (err) {
-    console.error("VIN decode block failed:", err.message);
-    rawVinData = "";
-    decodedData = {};
-  }
-}
-
-
-      // Recall API
-      const recallYear = year || decodedData.ModelYear || decodedData.year || new Date().getFullYear();
-      const recallMake = make || decodedData.Make || decodedData.make || "";
-      const recallModel = model || decodedData.Model || decodedData.model || "";
+      const recallYear = year || decodedData.ModelYear || new Date().getFullYear();
+      const recallMake = make || decodedData.Make || "";
+      const recallModel = model || decodedData.Model || "";
       const recallURL = `https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`;
 
-      // Parallel external calls
       let recallData = null, retailData = {}, auctionData = {}, vinSearchData = {};
       try {
         const [rRes, retailRes, auctionRes, vinRes] = await Promise.all([
@@ -140,30 +120,24 @@ if (vin) {
         console.error("External search error:", e.message);
       }
 
-      // Build recall block
-      let recallBlock = 'No recall alerts found.';
-      if (recallData?.count > 0 && Array.isArray(recallData.summaries)) {
-        recallBlock = "\n⚠️ Recall Alerts (" + recallData.count + "):\n" +
-          recallData.summaries.map((s,i) => `${i+1}. ${s}`).join("\n") +
-          "\n\n⚠️ List each recall above exactly as shown.";
-      }
+      const recallBlock = recallData?.count > 0 ?
+        `\n⚠️ Recall Alerts (${recallData.count}):\n${recallData.summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\n⚠️ List each recall above exactly as shown.` :
+        'No recall alerts found.';
 
-      // Format results
       function formatResults(title, data) {
         if (!data.items?.length) return `${title}\nNo results found.`;
         return title + "\n\n" +
-          data.items.slice(0,3).map((it,i) =>
-            `${i+1}. **${it.title}**\n${it.snippet}\n🔗 ${it.link}`
-          ).join("\n\n");
+          data.items.slice(0, 3).map((it, i) => `${i + 1}. **${it.title}**\n${it.snippet}\n🔗 ${it.link}`).join("\n\n");
       }
+
       let searchSummary = [
         "🌐 External Market Search:",
         formatResults("🏷️ Retail Pricing & Issues", retailData),
         formatResults("🏁 Auction Results", auctionData)
       ].join("\n\n");
+
       if (vinSearchData.items?.length) {
-        searchSummary += "\n\n🔍 VIN-Specific Mentions:\n\n" +
-          formatResults("Possible Auction History", vinSearchData);
+        searchSummary += "\n\n🔍 VIN-Specific Mentions:\n\n" + formatResults("Possible Auction History", vinSearchData);
       }
 
       // System prompt template

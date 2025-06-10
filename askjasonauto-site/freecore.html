@@ -108,32 +108,66 @@
           </div>
         </div>
 
-       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-  <input name="year" type="number" placeholder="Year (e.g. 2004)" required minlength="4" maxlength="4"
-    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <div>
+    <label class="block text-sm font-medium text-gray-300 mb-1">
+      Year <span class="text-red-500">*</span>
+    </label>
+    <input name="year" type="number" placeholder="Year (e.g. 2004)" required minlength="4" maxlength="4"
+      class="peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  </div>
 
-  <input name="make" placeholder="Make (e.g. Ford)" required
-    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  <div>
+    <label class="block text-sm font-medium text-gray-300 mb-1">
+      Make <span class="text-red-500">*</span>
+    </label>
+    <input name="make" placeholder="Make (e.g. Ford)" required
+      class="peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  </div>
 
-  <input name="model" placeholder="Model (e.g. Focus)" required
-    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  <div>
+    <label class="block text-sm font-medium text-gray-300 mb-1">
+      Model <span class="text-red-500">*</span>
+    </label>
+    <input name="model" placeholder="Model (e.g. Focus)" required
+      class="peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  </div>
 </div>
 
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-  <input name="zip" type="text" placeholder="ZIP Code (5 digits)" required pattern="\d{5}" maxlength="5"
-    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  <div>
+    <label class="block text-sm font-medium text-gray-300 mb-1">
+      ZIP Code <span class="text-red-500">*</span>
+    </label>
+    <input name="zip" type="text" placeholder="ZIP Code (5 digits)" required pattern="\d{5}" maxlength="5"
+      class="peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  </div>
 
-  <input name="price" type="number" placeholder="Price (USD)" required min="1"
-    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  <div>
+    <label class="block text-sm font-medium text-gray-300 mb-1">
+      Price <span class="text-red-500">*</span>
+    </label>
+    <input name="price" type="number" placeholder="Price (USD)" required min="1"
+      class="peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  </div>
 
-  <input name="mileage" type="number" placeholder="Mileage" required min="1"
-    class="peer p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  <div>
+    <label class="block text-sm font-medium text-gray-300 mb-1">
+      Mileage <span class="text-red-500">*</span>
+    </label>
+    <input name="mileage" type="number" placeholder="Mileage" required min="1"
+      class="peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
+  </div>
 </div>
 
-        <textarea name="conditionNotes" placeholder="Condition Notes/Price/Miles/Concerns/Auction, Private Party, Dealer Sale" rows="4" class="w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm"></textarea>
-        <input name="vin" type="text" placeholder="VIN Number (optional, 17 characters)" maxlength="17" class="w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm" />
-
-
+<div class="mt-4">
+  <label class="block text-sm font-medium text-gray-300 mb-1">
+    Condition Notes <span class="text-red-500">*</span>
+  </label>
+  <textarea name="conditionNotes" id="conditionNotes" rows="4" required data-minwords="10"
+    <p id="notesError" class="text-red-500 text-sm mt-1 hidden">Please enter at least 10 words in the condition notes.</p>
+    class="peer w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500"></textarea>
+</div>
         <input type="file" name="photos" id="photos" multiple accept="image/*" class="w-full text-gray-300 text-sm" onchange="if(this.files.length > 2){ alert('Max 2 photos allowed'); this.value = ''; }" />
 
         <div class="text-center">

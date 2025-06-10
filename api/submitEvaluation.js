@@ -3,7 +3,7 @@ import { OpenAI } from "openai";
 import formidable from "formidable";
 import fs from "fs";
 import fetch from "node-fetch";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 import { logTraffic } from "../logTraffic.js";
 
 export const config = {

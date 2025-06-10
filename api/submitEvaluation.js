@@ -245,7 +245,6 @@ await openai.beta.threads.messages.create(thread.id, {
   attachments: [{ file_id: fileRec.id, tools: [{ type: "code_interpreter" }] }]
 });
 
-// Explicit follow-up instruction after image is available in thread
 await openai.beta.threads.messages.create(thread.id, {
   role: "user",
   content: `Evaluate this image for:
@@ -254,11 +253,6 @@ await openai.beta.threads.messages.create(thread.id, {
 - Red flags: backdrop (woods, gravel, out-of-state tag), over-detailed engine bay, seller/dealer sketch cues
 - Anything that affects resale, safety, or inspection urgency.
 Include this in your full evaluation.`,
-});
-await openai.beta.threads.messages.create(thread.id, {
-  role: "user",
-  content: "Attached vehicle photo for review.",
-  attachments: [{ file_id: fileRec.id, tools: [{ type: "code_interpreter" }] }]
 });
 
 // Explicit follow-up instruction after image is available in thread

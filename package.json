@@ -6,7 +6,8 @@
     "@supabase/supabase-js": "^2.49.10",
     "cheerio": "^1.1.0",
     "formidable": "^3.5.0",
-    "openai": "^4.25.0"
+    "openai": "^4.25.0",
+    "uuid": "^11.1.0"
   },
   "description": "This repo contains the backend API that powers the Core Plan vehicle evaluation engine for Ask Jason Auto.",
   "main": "index.js",

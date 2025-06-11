@@ -279,15 +279,38 @@
       class="peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500" />
   </div>
 </div>
-
 <div class="mt-4">
+  <label for="vin" class="block text-sm font-medium text-gray-300 mb-1">
+    VIN (optional)
+  </label>
+  <input
+    type="text"
+    name="vin"
+    id="vin"
+    maxlength="17"
+    pattern="[A-HJ-NPR-Z0-9]{17}"
+    placeholder="17-digit VIN"
+    class="peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm"
+  />
+  <p class="text-gray-400 text-xs mt-1">
+    If a full VIN is entered, year, make, and model are not required.
+  </p>
+</div>
+<div class="mt-4 relative">
   <label class="block text-sm font-medium text-gray-300 mb-1">
     Condition Notes <span class="text-red-500">*</span>
   </label>
-  <textarea name="conditionNotes" id="conditionNotes" rows="4" required data-minwords="10"
-    placeholder="Describe issues, seller notes, asking price, platform..."
-    class="peer w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500"></textarea>
-  <p id="notesError" class="text-red-500 text-sm mt-1 hidden">Please enter at least 10 words in the condition notes.</p>
+  <textarea
+    name="conditionNotes"
+    id="conditionNotes"
+    rows="4"
+    required
+    placeholder="You must enter at least 10 words. Describe issues, seller notes, platform, model type, red flags..."
+    class="peer w-full rounded-lg p-3 bg-gray-700 text-white border border-gray-600 text-sm invalid:border-red-500 focus:invalid:ring-red-500"
+  ></textarea>
+  <p id="notesError" class="text-red-500 text-sm mt-1 hidden">
+    Please enter at least 10 words.
+  </p>
 </div>
         <input type="file" name="photos" id="photos" multiple accept="image/*" class="w-full text-gray-300 text-sm" onchange="if(this.files.length > 2){ alert('Max 2 photos allowed'); this.value = ''; }" />
 
@@ -387,6 +410,52 @@ output.classList.remove('hidden');
   output.classList.remove('hidden');
 }
 });
+
+<script>
+  const vinInput = document.createElement('input');
+  vinInput.type = 'text';
+  vinInput.name = 'vin';
+  vinInput.placeholder = 'VIN (optional)';
+  vinInput.maxLength = 17;
+  vinInput.pattern = '[A-HJ-NPR-Z0-9]{17}';
+  vinInput.className = 'peer w-full p-3 rounded bg-gray-700 text-white border border-gray-600 text-sm';
+  vinInput.style.marginTop = '1rem';
+
+  // Insert VIN field before the Condition Notes block
+  const condNotes = document.getElementById('conditionNotes').closest('div');
+  condNotes.parentElement.insertBefore(vinInput, condNotes);
+
+  const year = document.querySelector('[name="year"]');
+  const make = document.querySelector('[name="make"]');
+  const model = document.querySelector('[name="model"]');
+
+  vinInput.addEventListener('input', () => {
+    const isValidVIN = vinInput.value.trim().length === 17;
+
+    year.required = !isValidVIN;
+    make.required = !isValidVIN;
+    model.required = !isValidVIN;
+
+    year.classList.toggle('required-bypass', isValidVIN);
+    make.classList.toggle('required-bypass', isValidVIN);
+    model.classList.toggle('required-bypass', isValidVIN);
+  });
+</script>
+<script>
+  const conditionNotes = document.getElementById("conditionNotes");
+  const notesError = document.getElementById("notesError");
+
+  conditionNotes.addEventListener("input", () => {
+    const wordCount = conditionNotes.value.trim().split(/\s+/).filter(Boolean).length;
+    if (wordCount < 10) {
+      conditionNotes.setCustomValidity("Please enter at least 10 words.");
+      notesError.classList.remove("hidden");
+    } else {
+      conditionNotes.setCustomValidity("");
+      notesError.classList.add("hidden");
+    }
+  });
+</script>
 </script>
 
 <!-- ConvertKit Centered Inline Embed -->

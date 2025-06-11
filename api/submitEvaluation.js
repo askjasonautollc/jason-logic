@@ -335,10 +335,12 @@ Instructions:
 - Do NOT assume the car is clean. Inspect it like you suspect damage.
 - Report: trim (if visible), visible damage (dents, cracks), dash lights, shady details, interior wear, location clues.
 - This should be a standalone section, BEFORE 'Jason’s Real Talk'.`,
-    attachments: uploadFileIds.map(id => ({ file_id: id }))
+    attachments: uploadFileIds.map(id => ({
+      file_id: id,
+      tools: [{ type: "code_interpreter" }]
+    }))
   });
 }
-
 // Step 3: Run the GPT Assistant on the thread
 const run = await openai.beta.threads.runs.create(thread.id, {
   assistant_id: process.env.OPENAI_ASSISTANT_ID,

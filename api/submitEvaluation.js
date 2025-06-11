@@ -349,3 +349,6 @@ ${retailValue ? `| Retail Value         | $${retailValue.toLocaleString()} | $${
     return updatedReport;
   }
 }
+  // Fallback if not Buyer/Flipper or regex match failed
+return report;
+}

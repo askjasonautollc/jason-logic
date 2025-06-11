@@ -260,6 +260,7 @@ Include this intelligence in the final report.`,
           });
         } catch (err) {
           console.error("Image processing failed:", err.message);
+        }
       }
     }
   }
@@ -282,4 +283,4 @@ Include this intelligence in the final report.`,
   const report = assistantMsg?.content?.[0]?.text?.value || "No report generated.";
   return report;
   }
-}
+

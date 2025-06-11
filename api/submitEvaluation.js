@@ -1,3 +1,4 @@
+
 // submitEvaluation.js
 // Vercel API with Cheerio HTML scraping, OpenAI threading, and timeouts/short-circuit for URL-only
 
@@ -7,6 +8,9 @@ import fs from "fs";
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
 import { logTraffic } from "../logTraffic.js";
+import path from "path";
+import os from "os";
+import { v4 as uuidv4 } from "uuid";
 
 export const config = { api: { bodyParser: false } };
 
@@ -266,12 +270,8 @@ await openai.beta.threads.messages.create(thread.id, {
 // Step 2: Process and attach up to 2 images (if any)
 const uploadFileIds = [];
 
-import path from "path";
-import os from "os";
-import { v4 as uuidv4 } from "uuid";
-import fs from "fs";
 
-...
+
 
 for (const photo of uploadFiles.slice(0, 2)) {
   if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {

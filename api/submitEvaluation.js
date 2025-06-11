@@ -300,6 +300,52 @@ Include this intelligence in the final report.`,
   const msgs = await openai.beta.threads.messages.list(thread.id);
   const assistantMsg = msgs.data.find(m => m.role === "assistant");
   const report = assistantMsg?.content?.[0]?.text?.value || "No report generated.";
-  return report;
-  }
+if (["Buyer", "Flipper"].includes(fields.role)) {
+  const asking = Number(fields.price) || 0;
 
+  // Primary match: pull from Section 8
+  const match = report.match(
+    /Repairs\s*\|\s*\$([\d,]+)\s*\|\s*\$([\d,]+).*?Fees \(TTL\).*?\|\s*\$([\d,]+).*?Max Price to Pay.*?\$([\d,]+)/is
+  );
+
+  // Backup: Retail Value (from anywhere)
+  const retailMatch = report.match(/Retail Value:?\s*\$([\d,]+)/i);
+  const retailValue = retailMatch ? parseInt(retailMatch[1].replace(/,/g, "")) : null;
+
+  if (match) {
+    const [
+      _,
+      repairsLowRaw,
+      repairsHighRaw,
+      feesRaw,
+      maxRaw
+    ] = match;
+
+    const repairsLow = parseInt(repairsLowRaw.replace(/,/g, ""));
+    const repairsHigh = parseInt(repairsHighRaw.replace(/,/g, ""));
+    const fees = parseInt(feesRaw.replace(/,/g, ""));
+    const maxToPay = parseInt(maxRaw.replace(/,/g, ""));
+    const savings = asking - maxToPay;
+    const allInLow = asking + repairsLow + fees;
+    const allInHigh = asking + repairsHigh + fees;
+
+    const section8 = `
+| Category             | As Listed | Worst Case |
+|----------------------|-----------|------------|
+${retailValue ? `| Retail Value         | $${retailValue.toLocaleString()} | $${retailValue.toLocaleString()} |` : ""}
+| Asking Price         | $${asking.toLocaleString()} | $${asking.toLocaleString()} |
+| Repairs              | $${repairsLow.toLocaleString()} | $${repairsHigh.toLocaleString()} |
+| Fees (TTL)           | $${fees.toLocaleString()} | $${fees.toLocaleString()} |
+| All-In               | $${allInLow.toLocaleString()} | $${allInHigh.toLocaleString()} |
+| Max Price to Pay     | $${maxToPay.toLocaleString()} | $${maxToPay.toLocaleString()} |
+| What Jason Saved You| $${savings.toLocaleString()} | $${savings.toLocaleString()} |
+`;
+
+    const updatedReport = report.replace(
+      /8\. Money Math Table:[\s\S]*?(?=\n9\.)/,
+      `8. Money Math Table:\n\n${section8.trim()}\n`
+    );
+
+    return updatedReport;
+  }
+}

@@ -77,12 +77,30 @@ export default async function handler(req, res) {
     Object.entries(rawFields).forEach(([k, v]) => floppy[k] = Array.isArray(v) ? v[0] : v);
 
     const report = await runFullEvaluationLogic(floppy, files);
-    await logTraffic({ endpoint: req.url, method: req.method, statusCode: 200, request: floppy, response: { report }, session_id: '', req });
+    await logTraffic({
+  endpoint: req.url,
+  method: req.method,
+  statusCode: 200,
+  request: floppy,
+  response: { report },
+  session_id: '',
+  user_agent: req.headers['user-agent'],
+  ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress
+});
     return res.status(200).json({ report });
 
   } catch (error) {
     console.error("❌ Handler error:", error);
-    await logTraffic({ endpoint: req.url, method: req.method, statusCode: 500, request: {}, response: { error: error.message }, session_id: '', req });
+    await logTraffic({
+  endpoint: req.url,
+  method: req.method,
+  statusCode: 500,
+  request: {}, // or `rawFields` if you want partial context
+  response: { error: error.message },
+  session_id: '',
+  user_agent: req.headers['user-agent'],
+  ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress
+});
     return res.status(500).json({ error: "Evaluation failed" });
   }
 }

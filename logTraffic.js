@@ -28,7 +28,6 @@ export async function logTraffic({ endpoint, method, statusCode, request, respon
   response_body: response,
   user_agent,
   ip_address: ip,
-  session_id
 });
   } catch (err) {
     console.error("❌ Failed to log traffic:", err.message);

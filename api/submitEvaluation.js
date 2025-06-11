@@ -291,11 +291,5 @@ Include this in your full evaluation.`,
       const msgs = await openai.beta.threads.messages.list(thread.id);
       const assistantMsg = msgs.data.find(m => m.role === "assistant");
       const report = assistantMsg?.content?.[0]?.text?.value || "No report generated.";
-
-      await logTraffic({
-        endpoint: req.url, method: req.method,
-        statusCode: 200, request: flatFields,
-        response: { report }, session_id, req
-      });
-      return res.status(200).json({ report });
+      return report;
 

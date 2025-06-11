@@ -292,4 +292,4 @@ Include this in your full evaluation.`,
       const assistantMsg = msgs.data.find(m => m.role === "assistant");
       const report = assistantMsg?.content?.[0]?.text?.value || "No report generated.";
       return report;
-
+}

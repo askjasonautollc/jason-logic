@@ -184,7 +184,7 @@ const systemPrimer = [
 ];
 
 async function runFullEvaluationLogic(fields, files) {
-  const { vin, role, repairSkill, zip, make, model, year, conditionNotes } = fields;
+  const { vin, role, repairSkill, zip, make, model, year, price, conditionNotes } = fields;
   let decodedData = {}, rawVinData = "";
 
   if (vin) {
@@ -244,6 +244,7 @@ async function runFullEvaluationLogic(fields, files) {
     `🏷️ Make: ${recallMake}`,
     `📄 Model: ${recallModel}`,
     `📍 ZIP: ${zip}`,
+    `💰 Price: $${price}`,
     `📝 Notes: ${conditionNotes}`,
     rawVinData ? `🧾 VIN Data:\n${rawVinData}` : "",
     recallBlock,

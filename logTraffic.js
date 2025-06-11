@@ -18,7 +18,6 @@ export async function logTraffic({ endpoint, method, statusCode, request, respon
   response_body: response,
   user_agent,
   ip_address: ip,
-  session_id
 });
   try {
     await supabase.from('api_logs').insert({

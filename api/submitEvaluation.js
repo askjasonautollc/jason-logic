@@ -254,30 +254,28 @@ async function runFullEvaluationLogic(fields, files) {
     ...systemPrimer.map(line => line.replace("ROLE_PLACEHOLDER", role).replace("SKILL_PLACEHOLDER", repairSkill))
   ].filter(Boolean).join("\n");
 
-  const thread = await openai.beta.threads.create();
-await openai.beta.threads.messages.create(thread.id, {
-  role: "user",
-  content: `🖼️ IMAGE INTELLIGENCE SECTION:
-Review the attached vehicle image(s)...`,
-  attachments: [
-    {
-      file_id: fileRec.id
+const thread = await openai.beta.threads.create();
+
+if (files.photos) {
+  const uploadFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
+  const attachments = [];
+
+  for (const photo of uploadFiles.slice(0, 2)) {
+    if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {
+      try {
+        const stream = fs.createReadStream(photo.filepath);
+        const fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
+        attachments.push({ file_id: fileRec.id });
+      } catch (err) {
+        console.error("Image upload failed:", err.message);
+      }
     }
-  ]
-});
+  }
 
-  // Attach up to 2 photos with file_ids
-  if (files.photos) {
-    const uploadFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
-    for (const photo of uploadFiles.slice(0, 2)) {
-      if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {
-        try {
-          const stream = fs.createReadStream(photo.filepath);
-          const fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
-
-          await openai.beta.threads.messages.create(thread.id, {
-            role: "user",
-            content: `🖼️ IMAGE INTELLIGENCE SECTION:
+  if (attachments.length > 0) {
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: `🖼️ IMAGE INTELLIGENCE SECTION:
 Review the attached vehicle image(s) and generate a new report section labeled exactly:
 **🖼️ Image Intelligence**
 
@@ -290,15 +288,10 @@ In that section, identify and summarize:
 - Context clues (woods, gravel lot, weird tags)
 
 Do not blend this into other sections. Return it as a standalone section before 'Jason’s Real Talk'.`,
-            file_ids: [fileRec.id]
-          });
-        } catch (err) {
-          console.error("Image processing failed:", err.message);
-        }
-      }
-    }
+      attachments
+    });
   }
-
+}
   const run = await openai.beta.threads.runs.create(thread.id, { assistant_id: process.env.OPENAI_ASSISTANT_ID });
   let runStatus;
   const retryDelay = 1500;

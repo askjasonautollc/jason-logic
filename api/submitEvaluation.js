@@ -346,8 +346,18 @@ do {
 
 // Step 5: Extract final assistant response
 const msgs = await openai.beta.threads.messages.list(thread.id);
-const assistantMsg = msgs.data.find(m => m.role === "assistant");
-const report = assistantMsg?.content?.[0]?.text?.value || "No report generated.";
+
+// Sort oldest to newest to preserve reply order
+const allAssistantMsgs = msgs.data
+  .filter(m => m.role === "assistant")
+  .sort((a, b) => a.created_at - b.created_at)
+  .map(m => {
+    const contentBlock = m.content?.find(c => c.type === "text");
+    return contentBlock?.text?.value || "";
+  })
+  .filter(Boolean);
+
+const report = allAssistantMsgs.join("\n\n").trim() || "No report generated.";
 // END GPT EVALUATION FLOW
 
 if (["Buyer", "Flipper"].includes(fields.role)) {

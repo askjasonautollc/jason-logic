@@ -274,8 +274,7 @@ if (files.photos) {
         const stream = fs.createReadStream(photo.filepath);
         const fileRec = await openai.files.create({
           file: stream,
-          purpose: "assistants",
-          name: photo.originalFilename || `photo-${Date.now()}.jpg`
+          purpose: "assistants"
         });
         uploadFileIds.push(fileRec.id);
       } catch (err) {

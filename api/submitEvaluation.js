@@ -133,7 +133,7 @@ const systemPrimer = [
 "    3. Top 5 Known Issues + Repair Risk",
 "    4. Checklist (based on Role + Region)",
 "    5. Recall Risks",
-"    6. "Image Intelligence",
+"    6. Image Intelligence",
 "    7. Jason’s Real Talk",
 "    8. Here’s How Jason Would Move",
 "    9. Money Math Table:",

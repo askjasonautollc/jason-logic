@@ -341,6 +341,7 @@ Instructions:
     }))
   });
 }
+
 // Step 3: Run the GPT Assistant on the thread
 const run = await openai.beta.threads.runs.create(thread.id, {
   assistant_id: process.env.OPENAI_ASSISTANT_ID,

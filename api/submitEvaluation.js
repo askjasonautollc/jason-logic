@@ -269,9 +269,11 @@ await openai.beta.threads.messages.create(thread.id, {
 
 // Step 2: Process and attach up to 2 images (if any)
 const uploadFileIds = [];
+let uploadFiles = [];
 
-
-
+if (files.photos) {
+  uploadFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
+}
 
 for (const photo of uploadFiles.slice(0, 2)) {
   if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {

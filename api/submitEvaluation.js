@@ -277,19 +277,19 @@ Include this in your full evaluation.`,
   }
 }
 
-      // Run & poll
-      const run = await openai.beta.threads.runs.create(thread.id, { assistant_id: process.env.OPENAI_ASSISTANT_ID });
-      let runStatus; const retryDelay = 1500; const timeoutLimit = 60000; const startTime = Date.now();
-      do {
-        runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-        if (runStatus.status === "completed") break;
-        if (runStatus.status === "failed") throw new Error("Assistant run failed");
-        if (Date.now() - startTime > timeoutLimit) throw new Error("Timed out waiting for assistant");
-        await new Promise(r => setTimeout(r, retryDelay));
-      } while (true);
+      async function runFullEvaluationLogic(fields, files) {
+  const run = await openai.beta.threads.runs.create(thread.id, { assistant_id: process.env.OPENAI_ASSISTANT_ID });
+  let runStatus; const retryDelay = 1500; const timeoutLimit = 60000; const startTime = Date.now();
+  do {
+    runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+    if (runStatus.status === "completed") break;
+    if (runStatus.status === "failed") throw new Error("Assistant run failed");
+    if (Date.now() - startTime > timeoutLimit) throw new Error("Timed out waiting for assistant");
+    await new Promise(r => setTimeout(r, retryDelay));
+  } while (true);
 
-      const msgs = await openai.beta.threads.messages.list(thread.id);
-      const assistantMsg = msgs.data.find(m => m.role === "assistant");
-      const report = assistantMsg?.content?.[0]?.text?.value || "No report generated.";
-      return report;
+  const msgs = await openai.beta.threads.messages.list(thread.id);
+  const assistantMsg = msgs.data.find(m => m.role === "assistant");
+  const report = assistantMsg?.content?.[0]?.text?.value || "No report generated.";
+  return report;
 }

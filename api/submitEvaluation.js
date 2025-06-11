@@ -275,49 +275,66 @@ if (files.photos) {
   uploadFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
 }
 
-const fsPromises = fs.promises;
+console.log("📸 Processing uploaded files:", uploadFiles.map(f => ({
+  name: f.originalFilename,
+  path: f.filepath,
+  size: f.size,
+  type: f.mimetype
+})));
 
 for (const photo of uploadFiles.slice(0, 2)) {
   if (photo && photo.size > 0 && photo.mimetype?.startsWith("image/")) {
     try {
-      const tempFileName = `${uuidv4()}-${photo.originalFilename || 'upload.jpg'}`;
-      const tempPath = path.join(os.tmpdir(), tempFileName);
-      const buffer = await fsPromises.readFile(photo.filepath);
-      await fsPromises.writeFile(tempPath, buffer);
+      const buffer = fs.readFileSync(photo.filepath);
+      if (!buffer || buffer.length === 0) {
+        console.warn("⚠️ Skipping empty buffer:", photo.originalFilename);
+        continue;
+      }
 
+      const ext = path.extname(photo.originalFilename || ".jpg") || ".jpg";
+      const tempFileName = `${uuidv4()}${ext}`;
+      const tempPath = path.join(os.tmpdir(), tempFileName);
+
+      fs.writeFileSync(tempPath, buffer);
       const stream = fs.createReadStream(tempPath);
+
       const fileRec = await openai.files.create({
         file: stream,
         purpose: "assistants"
       });
 
-      console.log("✅ File uploaded:", fileRec.id);
+      console.log("✅ File uploaded to OpenAI:", {
+        id: fileRec.id,
+        name: fileRec.filename,
+        bytes: fileRec.bytes
+      });
+
       uploadFileIds.push(fileRec.id);
     } catch (err) {
-      console.error("❌ Failed image upload:", err.message);
+      console.error("❌ Exception uploading image:", {
+        file: photo.originalFilename,
+        message: err.message
+      });
     }
   } else {
-    console.warn("⚠️ Skipped invalid image file or empty input");
+    console.warn("⚠️ Invalid or empty image skipped:", photo?.originalFilename || "unknown");
   }
 }
 
-
-if (uploadFileIds.length > 0) {
+if (uploadFileIds.length === 0) {
+  console.warn("⚠️ No valid image files were uploaded. Assistant will not receive images.");
+} else {
+  console.log("🧠 Attaching image file IDs to assistant thread:", uploadFileIds);
   await openai.beta.threads.messages.create(thread.id, {
     role: "user",
     content: `🖼️ IMAGE INTELLIGENCE SECTION:
-Review the attached vehicle image(s) and generate a new report section labeled exactly:
+Review the attached vehicle image(s) and generate a dedicated section labeled exactly:
 **🖼️ Image Intelligence**
 
-In that section, identify and summarize:
-- Year, make, model, trim (if visible)
-- Any visible body damage (especially front/rear impacts)
-- Odd paint, panel gaps, missing parts, flipped plates
-- Dash lights (CEL, ABS, TPMS, etc) if cluster is visible
-- Interior damage, sloppy repairs, or missing components
-- Context clues (woods, gravel lot, weird tags)
-
-Do not blend this into other sections. Return it as a standalone section before 'Jason’s Real Talk'.`,
+Instructions:
+- Do NOT assume the car is clean. Inspect it like you suspect damage.
+- Report: trim (if visible), visible damage (dents, cracks), dash lights, shady details, interior wear, location clues.
+- This should be a standalone section, BEFORE 'Jason’s Real Talk'.`,
     attachments: uploadFileIds.map(id => ({
       file_id: id,
       tools: [{ type: "code_interpreter" }]

@@ -275,29 +275,29 @@ if (files.photos) {
   uploadFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
 }
 
+const fsPromises = fs.promises;
+
 for (const photo of uploadFiles.slice(0, 2)) {
-  if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {
+  if (photo && photo.size > 0 && photo.mimetype?.startsWith("image/")) {
     try {
-      const buffer = fs.readFileSync(photo.filepath);
-      const base64 = buffer.toString("base64");
-      const tempFileName = `${uuidv4()}.${photo.originalFilename?.split('.').pop() || 'jpg'}`;
+      const tempFileName = `${uuidv4()}-${photo.originalFilename || 'upload.jpg'}`;
       const tempPath = path.join(os.tmpdir(), tempFileName);
-      fs.writeFileSync(tempPath, buffer);
+      const buffer = await fsPromises.readFile(photo.filepath);
+      await fsPromises.writeFile(tempPath, buffer);
 
       const stream = fs.createReadStream(tempPath);
-
       const fileRec = await openai.files.create({
         file: stream,
         purpose: "assistants"
       });
 
-      console.log("✅ Uploaded File:", fileRec);
+      console.log("✅ File uploaded:", fileRec.id);
       uploadFileIds.push(fileRec.id);
     } catch (err) {
-      console.error("❌ Image upload failed:", err.message);
+      console.error("❌ Failed image upload:", err.message);
     }
   } else {
-    console.warn("⚠️ Skipping non-image or empty file.");
+    console.warn("⚠️ Skipped invalid image file or empty input");
   }
 }
 

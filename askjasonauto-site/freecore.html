@@ -351,77 +351,98 @@
   const output = document.getElementById('output');
   const loading = document.getElementById('loading');
   const submittedMsg = document.getElementById('submittedMessage');
+  const fileInput = document.getElementById('photos');
+  const submitBtn = document.querySelector('button[type="submit"]');
+
+  // 🛡️ Disable submit button if invalid file input
+  fileInput.addEventListener('change', () => {
+    submitBtn.disabled = true;
+    setTimeout(() => {
+      const files = [...fileInput.files];
+      const allValid = files.length <= 2 && files.every(f =>
+        f.size > 0 && f.type.startsWith("image/")
+      );
+      submitBtn.disabled = !allValid;
+    }, 300);
+  });
 
   form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // ✅ Capture the form data FIRST before touching the DOM
-  const formData = new FormData(form);
-
-  // 🧪 Optional: log file details for debugging
-  const files = formData.getAll('photos');
-  console.log("📤 Submitting files:", files.map(f => ({
-    name: f.name,
-    type: f.type,
-    size: f.size
-  })));
-
-  // 🔄 Then update the UI
-  form.classList.add('hidden');
-  submittedMsg.classList.remove('hidden');
-  output.classList.add('hidden');
-  output.innerHTML = "";
-  loading.classList.remove('hidden');
-
-  try {
-    const response = await fetch('https://jason-logic.vercel.app/api/submitEvaluation', {
-      method: 'POST',
-      body: formData
-    });
-
-    const raw = await response.text();
-    let result = {};
-    try {
-      result = JSON.parse(raw);
-    } catch (parseErr) {
-      output.innerHTML = "<p class='text-red-400'>❌ Response was not valid JSON.</p>";
-      loading.classList.add('hidden');
-      output.classList.remove('hidden');
+    const photos = fileInput.files;
+    if (photos.length > 2) {
+      alert("You can only upload up to 2 photos.");
       return;
     }
-
-    loading.classList.add('hidden');
-
-    if (result?.report && typeof result.report === 'string') {
-      const raw = result.report;
-      const html = raw
-        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
-        .replace(/## (.*?)\n/g, '<h2 class="text-lime-400 text-xl font-semibold mt-6 mb-2">$1</h2>')
-        .replace(/# (.*?)\n/g, '<h1 class="text-lime-400 text-2xl font-bold mt-8 mb-4">$1</h1>')
-        .replace(/- (.*?)(?=\n|$)/g, '<li>$1</li>')
-        .replace(/\n{2,}/g, '</p><p>')
-        .replace(/\n/g, '<br>')
-        .replace(/<li>(.*?)<\/li>/g, '<ul class="list-disc list-inside space-y-1 mb-4"><li>$1</li></ul>')
-        .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 text-sm p-4 rounded mb-4">$1</pre>');
-
-      output.innerHTML = `
-        <div class="space-y-6 text-sm text-gray-300 leading-relaxed bg-gray-900 rounded-xl p-6 shadow-lg">
-          ${html}
-        </div>
-      `;
-      document.getElementById('reportActions').classList.remove('hidden');
-    } else {
-      output.innerHTML = "<p class='text-yellow-300'>⚠️ No readable report returned. Check logs or backend response.</p>";
+    for (const photo of photos) {
+      if (photo.size === 0 || !photo.type.startsWith("image/")) {
+        alert("Please wait for the image to fully load or select a valid file.");
+        return;
+      }
     }
 
-    output.classList.remove('hidden');
-  } catch (err) {
-    loading.classList.add('hidden');
-    output.innerHTML = `<p class='text-red-400'>❌ Submit failed: ${err.message}</p>`;
-    output.classList.remove('hidden');
-  }
-});
+    // ✅ Capture formData *after* confirming files are good
+    const formData = new FormData(form);
+    console.log("📤 Submitting files:", [...photos].map(f => ({
+      name: f.name,
+      type: f.type,
+      size: f.size
+    })));
 
+    form.classList.add('hidden');
+    submittedMsg.classList.remove('hidden');
+    output.classList.add('hidden');
+    output.innerHTML = "";
+    loading.classList.remove('hidden');
+
+    try {
+      const response = await fetch('https://jason-logic.vercel.app/api/submitEvaluation', {
+        method: 'POST',
+        body: formData
+      });
+
+      const raw = await response.text();
+      let result = {};
+      try {
+        result = JSON.parse(raw);
+      } catch (parseErr) {
+        output.innerHTML = "<p class='text-red-400'>❌ Response was not valid JSON.</p>";
+        loading.classList.add('hidden');
+        output.classList.remove('hidden');
+        return;
+      }
+
+      loading.classList.add('hidden');
+
+      if (result?.report && typeof result.report === 'string') {
+        const raw = result.report;
+        const html = raw
+          .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+          .replace(/## (.*?)\n/g, '<h2 class="text-lime-400 text-xl font-semibold mt-6 mb-2">$1</h2>')
+          .replace(/# (.*?)\n/g, '<h1 class="text-lime-400 text-2xl font-bold mt-8 mb-4">$1</h1>')
+          .replace(/- (.*?)(?=\n|$)/g, '<li>$1</li>')
+          .replace(/\n{2,}/g, '</p><p>')
+          .replace(/\n/g, '<br>')
+          .replace(/<li>(.*?)<\/li>/g, '<ul class="list-disc list-inside space-y-1 mb-4"><li>$1</li></ul>')
+          .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 text-sm p-4 rounded mb-4">$1</pre>');
+
+        output.innerHTML = `
+          <div class="space-y-6 text-sm text-gray-300 leading-relaxed bg-gray-900 rounded-xl p-6 shadow-lg">
+            ${html}
+          </div>
+        `;
+        document.getElementById('reportActions').classList.remove('hidden');
+      } else {
+        output.innerHTML = "<p class='text-yellow-300'>⚠️ No readable report returned. Check logs or backend response.</p>";
+      }
+
+      output.classList.remove('hidden');
+    } catch (err) {
+      loading.classList.add('hidden');
+      output.innerHTML = `<p class='text-red-400'>❌ Submit failed: ${err.message}</p>`;
+      output.classList.remove('hidden');
+    }
+  });
 </script>
 
 <script>

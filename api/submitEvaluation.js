@@ -61,107 +61,63 @@ async function searchGoogle(query) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-
-  const form = formidable({ multiples: true, allowEmptyFiles: true, minFileSize: 0 });
-
   try {
-  form.parse(req, async (err, fields, files) => {
-  if (err) {
-    // handle parse error
-  }
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: "Method not allowed" });
 
-  try {
-    const flatFields = {};
-    Object.entries(fields).forEach(([k, v]) => {
-      flatFields[k] = Array.isArray(v) ? v[0] : v;
+    const { fields: rawFields, files } = await new Promise((resolve, reject) => {
+      const form = formidable({ multiples: true, allowEmptyFiles: true, minFileSize: 0 });
+      form.parse(req, (err, fields, files) => err ? reject(err) : resolve({ fields, files }));
     });
 
-    // 🔽 All your logic goes here: decodeVin, search, threading, etc.
+    const floppy = {};
+    Object.entries(rawFields).forEach(([k, v]) => floppy[k] = Array.isArray(v) ? v[0] : v);
 
-    return res.status(200).json({ report }); // final success response
-
-  } catch (error) {
-    console.error("❌ Evaluation error:", error);
-    await logTraffic({
-      endpoint: req.url,
-      method: req.method,
-      statusCode: 500,
-      request: flatFields,
-      response: { error: error.message },
-      session_id: "",
-      req,
-    });
-    return res.status(500).json({ error: "Evaluation failed" });
-  }
-});
-
-    // 🔽 Your full logic continues here (decodeVin, search, OpenAI thread, etc.)
-
+    const report = await runFullEvaluationLogic(floppy, files);
+    await logTraffic({ endpoint: req.url, method: req.method, statusCode: 200, request: floppy, response: { report }, session_id: '', req });
     return res.status(200).json({ report });
 
   } catch (error) {
-    console.error("❌ Evaluation error:", error);
-    await logTraffic({
-      endpoint: req.url,
-      method: req.method,
-      statusCode: 500,
-      request: fields,
-      response: { error: error.message },
-      session_id: "",
-      req,
-    });
+    console.error("❌ Handler error:", error);
+    await logTraffic({ endpoint: req.url, method: req.method, statusCode: 500, request: {}, response: { error: error.message }, session_id: '', req });
     return res.status(500).json({ error: "Evaluation failed" });
-  }
-});
-      
-
-      } catch (error) {
-        console.error("❌ Evaluation error:", error);
-        await logTraffic({
-          endpoint: req.url,
-          method: req.method,
-          statusCode: 500,
-          request: fields,
-          response: { error: error.message },
-          session_id: "",
-          req,
-        });
-        return res.status(500).json({ error: "Evaluation failed" });
-      }
-    });
-  } catch (outerErr) {
-    console.error("❌ Top-level handler error:", outerErr);
-    return res.status(500).json({ error: "Handler failure" });
   }
 }
 
-      const recallYear = year || decodedData.ModelYear || new Date().getFullYear();
-      const recallMake = make || decodedData.Make || "";
-      const recallModel = model || decodedData.Model || "";
-      const recallURL = `https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`;
+async function runFullEvaluationLogic(fields, files) {
+  const { vin, role, repairSkill, zip, make, model, year, conditionNotes } = fields;
 
-      let recallData = null, retailData = {}, auctionData = {}, vinSearchData = {};
-      try {
-        const [rRes, retailRes, auctionRes, vinRes] = await Promise.all([
-          fetchWithTimeout(recallURL, {}, 5000),
-          searchGoogle(`${recallYear} ${recallMake} ${recallModel} value OR price OR common issues site:autotrader.com OR site:cargurus.com OR site:cars.com`),
-          searchGoogle(`${recallYear} ${recallMake} ${recallModel} auction results OR sold prices site:copart.com OR site:iaai.com OR site:bringatrailer.com OR site:carsandbids.com`),
-          vin ? searchGoogle(`VIN ${vin} site:copart.com OR site:iaai.com OR site:govdeals.com OR site:bid.cars OR site:autobidmaster.com`) : Promise.resolve({ items: [] })
-        ]);
-        if (!rRes.ok) throw new Error(`Recall API ${rRes.status}`);
-        recallData = await rRes.json();
-        retailData = retailRes;
-        auctionData = auctionRes;
-        vinSearchData = vinRes;
-      } catch (e) {
-        console.error("External search error:", e.message);
-      }
+  let decodedData = {}, rawVinData = "";
+
+  if (vin) {
+    const vinResult = await decodeVin(vin);
+    if (vinResult?.data) {
+      decodedData = vinResult.data;
+      rawVinData = JSON.stringify(vinResult.data, null, 2);
+    }
+  }
+
+  const recallYear = year || decodedData.ModelYear || new Date().getFullYear();
+  const recallMake = make || decodedData.Make || "";
+  const recallModel = model || decodedData.Model || "";
+  const recallURL = `https://askjasonauto-recalls.vercel.app/api/recalls?make=${encodeURIComponent(recallMake)}&model=${encodeURIComponent(recallModel)}&year=${recallYear}`;
+
+  let recallData = null, retailData = {}, auctionData = {}, vinSearchData = {};
+  try {
+    const [rRes, retailRes, auctionRes, vinRes] = await Promise.all([
+      fetchWithTimeout(recallURL, {}, 5000),
+      searchGoogle(`${recallYear} ${recallMake} ${recallModel} value OR price OR common issues site:autotrader.com OR site:cargurus.com OR site:cars.com`),
+      searchGoogle(`${recallYear} ${recallMake} ${recallModel} auction results OR sold prices site:copart.com OR site:iaai.com OR site:bringatrailer.com OR site:carsandbids.com`),
+      vin ? searchGoogle(`VIN ${vin} site:copart.com OR site:iaai.com OR site:govdeals.com OR site:bid.cars OR site:autobidmaster.com`) : Promise.resolve({ items: [] })
+    ]);
+    if (!rRes.ok) throw new Error(`Recall API ${rRes.status}`);
+    recallData = await rRes.json();
+    retailData = retailRes;
+    auctionData = auctionRes;
+    vinSearchData = vinRes;
+  } catch (e) {
+    console.error("External search error:", e.message);
+  }
 
       const recallBlock = recallData?.count > 0 ?
         `\n⚠️ Recall Alerts (${recallData.count}):\n${recallData.summaries.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\n⚠️ List each recall above exactly as shown.` :
@@ -343,14 +299,3 @@ Include this in your full evaluation.`,
       });
       return res.status(200).json({ report });
 
-    } catch (error) {
-      console.error("❌ Evaluation error:", error);
-      await logTraffic({
-        endpoint: req.url, method: req.method,
-        statusCode: 500, request: flatFields,
-        response: { error: error.message }, session_id, req
-      });
-      return res.status(500).json({ error: "Evaluation failed" });
-    }
-  });
-}

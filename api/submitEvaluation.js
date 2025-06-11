@@ -321,25 +321,28 @@ for (const photo of uploadFiles.slice(0, 2)) {
   }
 }
 
-if (uploadFileIds.length === 0) {
-  console.warn("⚠️ No valid image files were uploaded. Assistant will not receive images.");
-} else {
-  console.log("🧠 Attaching image file IDs to assistant thread:", uploadFileIds);
-  await openai.beta.threads.messages.create(thread.id, {
-    role: "user",
-    content: `🖼️ IMAGE INTELLIGENCE SECTION:
+const imageInstructions = `
+---
+
+🖼️ IMAGE INTELLIGENCE SECTION:
 Review the attached vehicle image(s) and generate a dedicated section labeled exactly:
 **🖼️ Image Intelligence**
 
 Instructions:
 - Do NOT assume the car is clean. Inspect it like you suspect damage.
 - Report: trim (if visible), visible damage (dents, cracks), dash lights, shady details, interior wear, location clues.
-- This should be a standalone section, BEFORE 'Jason’s Real Talk'.`,
-    attachments: uploadFileIds.map(id => ({
-      file_id: id,
-      tools: [{ type: "code_interpreter" }]
-    }))
-  });
+- This should be a standalone section, BEFORE 'Jason’s Real Talk'.`;
+
+console.log("🧠 Creating assistant message with combined prompt and images:", uploadFileIds);
+
+await openai.beta.threads.messages.create(thread.id, {
+  role: "user",
+  content: `${userPrompt}\n\n${imageInstructions}`,
+  attachments: uploadFileIds.map(id => ({
+    file_id: id,
+    tools: [{ type: "code_interpreter" }]
+  }))
+});
 }
 
 // Step 3: Run the GPT Assistant on the thread

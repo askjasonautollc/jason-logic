@@ -335,20 +335,24 @@ Instructions:
 
 console.log("🧠 Creating assistant message with combined prompt and images:", uploadFileIds);
 
-await openai.beta.threads.messages.create(thread.id, {
+const messagePayload = {
   role: "user",
-  content: `${userPrompt}\n\n${imageInstructions}`,
-  attachments: uploadFileIds.map(id => ({
+  content: userPrompt + (uploadFileIds.length ? "\n\n" + imageInstructions : "")
+};
+
+if (uploadFileIds.length) {
+  messagePayload.attachments = uploadFileIds.map(id => ({
     file_id: id,
     tools: [{ type: "code_interpreter" }]
-  }))
-});
+  }));
 }
 
-// Step 3: Run the GPT Assistant on the thread
+await openai.beta.threads.messages.create(thread.id, messagePayload);
+
+// Now run
 const run = await openai.beta.threads.runs.create(thread.id, {
   assistant_id: process.env.OPENAI_ASSISTANT_ID,
-  tool_choice: "auto" // ✅ Force GPT to activate tools like code interpreter
+  tool_choice: "auto"
 });
 
 

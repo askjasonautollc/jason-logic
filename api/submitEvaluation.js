@@ -272,7 +272,11 @@ if (files.photos) {
     if (photo && photo.size > 0 && photo.mimetype.startsWith("image/")) {
       try {
         const stream = fs.createReadStream(photo.filepath);
-        const fileRec = await openai.files.create({ file: stream, purpose: "assistants" });
+const fileRec = await openai.files.create({
+  file: stream,
+  purpose: "assistants",
+  name: photo.originalFilename || `photo-${Date.now()}.jpg`
+});
         uploadFileIds.push(fileRec.id);
       } catch (err) {
         console.error("Image upload failed:", err.message);

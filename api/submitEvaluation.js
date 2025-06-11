@@ -335,10 +335,7 @@ Instructions:
 - Do NOT assume the car is clean. Inspect it like you suspect damage.
 - Report: trim (if visible), visible damage (dents, cracks), dash lights, shady details, interior wear, location clues.
 - This should be a standalone section, BEFORE 'Jason’s Real Talk'.`,
-    attachments: uploadFileIds.map(id => ({
-      file_id: id,
-      tools: [{ type: "code_interpreter" }]
-    }))
+    attachments: uploadFileIds.map(id => ({ file_id: id }))
   });
 }
 
@@ -347,6 +344,7 @@ const run = await openai.beta.threads.runs.create(thread.id, {
   assistant_id: process.env.OPENAI_ASSISTANT_ID,
   tool_choice: "auto" // ✅ Force GPT to activate tools like code interpreter
 });
+
 
 let runStatus;
 const retryDelay = 1500;

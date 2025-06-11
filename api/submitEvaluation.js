@@ -255,7 +255,16 @@ async function runFullEvaluationLogic(fields, files) {
   ].filter(Boolean).join("\n");
 
   const thread = await openai.beta.threads.create();
-  await openai.beta.threads.messages.create(thread.id, { role: "user", content: userPrompt });
+await openai.beta.threads.messages.create(thread.id, {
+  role: "user",
+  content: `🖼️ IMAGE INTELLIGENCE SECTION:
+Review the attached vehicle image(s)...`,
+  attachments: [
+    {
+      file_id: fileRec.id
+    }
+  ]
+});
 
   // Attach up to 2 photos with file_ids
   if (files.photos) {

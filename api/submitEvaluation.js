@@ -253,7 +253,17 @@ async function runFullEvaluationLogic(fields, files) {
     searchSummary,
     ...systemPrimer.map(line => line.replace("ROLE_PLACEHOLDER", role).replace("SKILL_PLACEHOLDER", repairSkill))
   ].filter(Boolean).join("\n");
+  
+// BEGIN GPT EVALUATION FLOW
+const thread = await openai.beta.threads.create();
 
+// Step 1: Send primary evaluation prompt
+await openai.beta.threads.messages.create(thread.id, {
+  role: "user",
+  content: userPrompt
+});
+
+// Step 2: Process and attach up to 2 images (if any)
 const uploadFileIds = [];
 
 if (files.photos) {
@@ -293,22 +303,32 @@ Do not blend this into other sections. Return it as a standalone section before 
     }))
   });
 }
-  const run = await openai.beta.threads.runs.create(thread.id, { assistant_id: process.env.OPENAI_ASSISTANT_ID });
-  let runStatus;
-  const retryDelay = 1500;
-  const timeoutLimit = 60000;
-  const startTime = Date.now();
-  do {
-    runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-    if (runStatus.status === "completed") break;
-    if (runStatus.status === "failed") throw new Error("Assistant run failed");
-    if (Date.now() - startTime > timeoutLimit) throw new Error("Timed out waiting for assistant");
-    await new Promise(r => setTimeout(r, retryDelay));
-  } while (true);
 
-  const msgs = await openai.beta.threads.messages.list(thread.id);
-  const assistantMsg = msgs.data.find(m => m.role === "assistant");
-  const report = assistantMsg?.content?.[0]?.text?.value || "No report generated.";
+// Step 3: Run the GPT Assistant on the thread
+const run = await openai.beta.threads.runs.create(thread.id, {
+  assistant_id: process.env.OPENAI_ASSISTANT_ID
+});
+
+let runStatus;
+const retryDelay = 1500;
+const timeoutLimit = 60000;
+const startTime = Date.now();
+
+// Step 4: Poll until GPT finishes
+do {
+  runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+  if (runStatus.status === "completed") break;
+  if (runStatus.status === "failed") throw new Error("Assistant run failed");
+  if (Date.now() - startTime > timeoutLimit) throw new Error("Timed out waiting for assistant");
+  await new Promise(r => setTimeout(r, retryDelay));
+} while (true);
+
+// Step 5: Extract final assistant response
+const msgs = await openai.beta.threads.messages.list(thread.id);
+const assistantMsg = msgs.data.find(m => m.role === "assistant");
+const report = assistantMsg?.content?.[0]?.text?.value || "No report generated.";
+// END GPT EVALUATION FLOW
+
 if (["Buyer", "Flipper"].includes(fields.role)) {
   const asking = Number(fields.price) || 0;
 

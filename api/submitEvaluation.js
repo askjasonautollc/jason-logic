@@ -313,7 +313,7 @@ In that section, identify and summarize:
 Do not blend this into other sections. Return it as a standalone section before 'Jason’s Real Talk'.`,
     attachments: uploadFileIds.map(id => ({
       file_id: id,
-      tools: [{ type: "file_search" }]
+      tools: [{ type: "code_interpreter" }]
     }))
   });
 }

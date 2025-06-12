@@ -394,6 +394,7 @@
     output.classList.add('hidden');
     output.innerHTML = "";
     loading.classList.remove('hidden');
+    document.getElementById('submittedMessage').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     try {
       const response = await fetch('https://jason-logic.vercel.app/api/submitEvaluation', {

@@ -110,86 +110,31 @@ export default async function handler(req, res) {
 }
 
 // System prompt lines
-const systemPrimer = [
-"---",
-  "- LANGUAGE + VOICE STYLE RULES:",
-    "- You are Jason—speak like a seasoned streetwise car expert, not a chatbot.Return structured HTML using Tailwind CSS. Format your report into styled sections (summary, pricing, issues, recalls, action steps, and verdict). Use cards, grids, and strong visual hierarchy. Return raw HTML only—no Markdown, no inline styles, and no scripts.",
-    "- Use blunt, confident language. Never hedge, waffle, or speculate.",
-    "- Prioritize real-world deal logic over formal or technical language.",
-    "- Sound like a coach giving sharp advice to someone in the game.",
-    "- Favor short, punchy sentences over long explanations.",
-    "- When you call out BS or red flags, do it clearly and boldly.",
-    "- When giving cost logic or buyer plays, be tactical and assertive.",
-    "- Use phrases like 'buyer beware,' 'run this deal,' 'this is where people lose money,' and 'fix this, skip that, sell fast.'",
-    "- Do not speak passively or academically—this is street-smart evaluation.",
-    "- Always end with a decisive call: 'Verdict: Walk / Talk / Run.'",
-"---",
-"You are Jason from Ask Jason Auto. The user is a ROLE_PLACEHOLDER with SKILL_PLACEHOLDER skill. This is a vehicle evaluation.",
-"- Follow this diagnostic-first flow:",
-"    1. Flag vehicle risk category based on mileage, recalls, model-year trends.",
-"    2. Treat known issues as potential until confirmed by notes, recall data, or VIN signals.",
-"    3. Use checklist to rule issues in or out. Do not assume repairs unless symptoms or trends suggest risk.",
-"    4. Perform money math only on confirmed issues.",
-"    5. Verdict comes last—after you’ve worked the logic.",
-"- You MUST return all 12 mandatory sections in order—no skipping or relabeling:",
-"    1. User Submission Recap",
-"    2. Evaluation Breakdown",
-"    3. Top 5 Known Issues + Repair Risk",
-"    4. Checklist (based on Role + Region)",
-"    5. Recall Risks",
-"    6. Image Intelligence",
-"    7. Jason’s Real Talk",
-"    8. Here’s How Jason Would Move",
-"    9. Money Math Table:",
-"        | Category             | As Listed | Worst Case |",
-"        |----------------------|-----------|------------|",
-"        | Asking Price         |           |            |",
-"        | Repairs              |           |            |",
-"        | Fees (TTL)           |           |            |",
-"        | All-In               |           |            |",
-"        | Max Price to Pay     |           |            |",
-"        | What Jason Saved You|           |            |",
-"    10. Verdict: Walk / Talk / Run",
-"    11. Internet Market Comps Summary",
-"    12. Internet Pricing Justification",
-"- NEVER include retail value or margin. Focus only on real cost math.",
-"- Max Price to Pay must never exceed asking price.",
-"- In buyer role, assume most sellers won’t go below 75% of asking price unless major issues are visible.",
-"---",
-"RECALL LOGIC:",
-"- Recalls are never a walk or run issue for a Buyer or Flipper.",
-"- Recalls are an opportunity—especially if the current symptom matches a known recall.",
-"- If issue matches a recall, flag it as a likely free fix and adjust cost math.",
-"- Say it clearly: 'This should be a $0 fix at the dealer. Use it.'",
-"- Do not double-count recall-related repairs in cost estimates.",
-"- If the seller hasn’t done the recall, that’s your leverage.",
-"- Recalls are deal ammo—not a scare tactic.",
-"- Highlight these opportunities in Jason’s Real Talk.",
-"- Do not require recall verification—just explain impact.",
-"- Show how recall alignment affects Max Price logic.",
-"---",
-"NO-NONSENSE LOGIC (ENFORCE IN ALL SECTIONS):",
-"- If seller says 'just needs a sensor' or similar, treat it as unverified. That’s code for 'buyer beware.'",
-"- Do not trust soft seller language or misleading direction on simple repairs needed—verify everything.",
-"- We do not suggest to buy anything with bad, missing, or rebuilt titles.",
-"- Curb-stoner risk? Flag it. Woods, gravel, mismatched phone numbers—call it.",
-"- No support for scams with fake photos or too-cheap-to-be-real listings.",
-"- We only support cash or verified bank check deals—no financing advice.",
-"- Jason does not support 'online vehicle shipping' unless source is verified (e.g. Carvana, Vroom, trusted broker).",
-"- Flag dealer lots that pretend to be private sellers.",
-"- If it smells like a flip scam, say it in Real Talk.",
-"---",
-"INTERNET INFORMATION SECTION RULES:",
-"- Always summarize market comps from search results. Give the user the details Jason would give them to be informed.",
-"- Give a price range for similar vehicles with similar mileage/recall status.",
-"- Use this range to justify your Max Pay recommendation.",
-"- Highlight if asking price is above or below the market average.",
-"- Mention any strong pricing anchors, major outliers, or patterns found online.",
-"---"
-];
+const buildUserPrompt = (fields, files) => `
+Evaluate this vehicle:
+
+- Role: ${fields.role}
+- Repair Skill: ${fields.repairSkill}
+- Year: ${fields.year}
+- Make: ${fields.make}
+- Model: ${fields.model}
+- Mileage: ${fields.mileage}
+- Price: $${fields.price}
+- ZIP Code: ${fields.zip}
+- VIN: ${fields.vin || 'Not provided'}
+- Notes: ${fields.conditionNotes}
+${files?.length > 0 ? `- Images: ${files.length} photo(s) uploaded` : '- Images: None'}
+`.trim();
 
 async function runFullEvaluationLogic(fields, files) {
-  const { vin, role, repairSkill, zip, make, model, year, price, conditionNotes } = fields;
+  const { vin, role, repairSkill, zip, make, model, year, mileage, price, conditionNotes } = fields;
+
+  const userPrompt = buildUserPrompt(fields, files);
+
+  const messages = [
+    { role: "user", content: userPrompt }
+  ];
+
   let decodedData = {}, rawVinData = "";
 
   if (vin) {
@@ -240,23 +185,6 @@ async function runFullEvaluationLogic(fields, files) {
   if (vinSearchData.items?.length) {
     searchSummary += "\n\n🔍 VIN-Specific Mentions:\n\n" + formatResults("Possible Auction History", vinSearchData);
   }
-
-  const userPrompt = [
-    listingLinks.length ? `Listing: ${listingLinks[0]}` : "",
-    `👤 Role: ${role}`,
-    `🔧 Skill: ${repairSkill}`,
-    `🚗 Year: ${recallYear}`,
-    `🏷️ Make: ${recallMake}`,
-    `📄 Model: ${recallModel}`,
-    `📍 ZIP: ${zip}`,
-    `💰 Price: $${price}`,
-    `📝 Notes: ${conditionNotes}`,
-    rawVinData ? `🧾 VIN Data:\n${rawVinData}` : "",
-    recallBlock,
-    "🧠 Search Results:",
-    searchSummary,
-    ...systemPrimer.map(line => line.replace("ROLE_PLACEHOLDER", role).replace("SKILL_PLACEHOLDER", repairSkill))
-  ].filter(Boolean).join("\n");
   
 // BEGIN GPT EVALUATION FLOW
 const thread = await openai.beta.threads.create();
@@ -386,55 +314,5 @@ const allAssistantMsgs = msgs.data
 const report = allAssistantMsgs.join("\n\n").trim() || "No report generated.";
 // END GPT EVALUATION FLOW
 
-if (["Buyer", "Flipper"].includes(fields.role)) {
-  const asking = Number(fields.price) || 0;
-
-  // Primary match: pull from Section 8
-  const match = report.match(
-    /Repairs\s*\|\s*\$([\d,]+)\s*\|\s*\$([\d,]+).*?Fees \(TTL\).*?\|\s*\$([\d,]+).*?Max Price to Pay.*?\$([\d,]+)/is
-  );
-
-  // Backup: Retail Value (from anywhere)
-  const retailMatch = report.match(/Retail Value:?\s*\$([\d,]+)/i);
-  const retailValue = retailMatch ? parseInt(retailMatch[1].replace(/,/g, "")) : null;
-
-  if (match) {
-    const [
-      _,
-      repairsLowRaw,
-      repairsHighRaw,
-      feesRaw,
-      maxRaw
-    ] = match;
-
-    const repairsLow = parseInt(repairsLowRaw.replace(/,/g, ""));
-    const repairsHigh = parseInt(repairsHighRaw.replace(/,/g, ""));
-    const fees = parseInt(feesRaw.replace(/,/g, ""));
-    const maxToPay = parseInt(maxRaw.replace(/,/g, ""));
-    const savings = asking - maxToPay;
-    const allInLow = asking + repairsLow + fees;
-    const allInHigh = asking + repairsHigh + fees;
-
-    const section8 = `
-| Category             | As Listed | Worst Case |
-|----------------------|-----------|------------|
-${retailValue ? `| Retail Value         | $${retailValue.toLocaleString()} | $${retailValue.toLocaleString()} |` : ""}
-| Asking Price         | $${asking.toLocaleString()} | $${asking.toLocaleString()} |
-| Repairs              | $${repairsLow.toLocaleString()} | $${repairsHigh.toLocaleString()} |
-| Fees (TTL)           | $${fees.toLocaleString()} | $${fees.toLocaleString()} |
-| All-In               | $${allInLow.toLocaleString()} | $${allInHigh.toLocaleString()} |
-| Max Price to Pay     | $${maxToPay.toLocaleString()} | $${maxToPay.toLocaleString()} |
-| What Jason Saved You| $${savings.toLocaleString()} | $${savings.toLocaleString()} |
-`;
-
-    const updatedReport = report.replace(
-      /8\. Money Math Table:[\s\S]*?(?=\n9\.)/,
-      `8. Money Math Table:\n\n${section8.trim()}\n`
-    );
-
-    return updatedReport;
-  }
-}
-  // Fallback if not Buyer/Flipper or regex match failed
-return report;
+  return report;
 }

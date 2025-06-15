@@ -462,6 +462,57 @@
     createGauge(document.getElementById('riskGauge'), riskScore);
     createGauge(document.getElementById('priceGauge'), priceScore);
   }
+  let loadingInterval;
+let loadingAngle = 0;
+let loadingUp = true;
+
+function startGaugeLoading() {
+  const ctxRisk = document.getElementById('riskGauge').getContext('2d');
+  const ctxPrice = document.getElementById('priceGauge').getContext('2d');
+
+  const dummyData = {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [0, 10],
+        backgroundColor: ['#00c851', '#444'],
+        borderWidth: 0,
+        cutout: '80%'
+      }]
+    },
+    options: {
+      rotation: -90,
+      circumference: 180,
+      plugins: {
+        tooltip: { enabled: false },
+        legend: { display: false }
+      }
+    }
+  };
+
+  const riskGauge = new Chart(ctxRisk, JSON.parse(JSON.stringify(dummyData)));
+  const priceGauge = new Chart(ctxPrice, JSON.parse(JSON.stringify(dummyData)));
+
+  loadingInterval = setInterval(() => {
+    loadingAngle = loadingUp ? loadingAngle + 0.5 : loadingAngle - 0.5;
+
+    if (loadingAngle >= 10) loadingUp = false;
+    if (loadingAngle <= 0) loadingUp = true;
+
+    const color = getGaugeColor(loadingAngle);
+
+    [riskGauge, priceGauge].forEach(gauge => {
+      gauge.data.datasets[0].data = [loadingAngle, 10 - loadingAngle];
+      gauge.data.datasets[0].backgroundColor = [color, '#444'];
+      gauge.update();
+    });
+  }, 30);
+}
+
+function stopGaugeLoading() {
+  clearInterval(loadingInterval);
+}
+
 </script>
 
 
@@ -519,6 +570,8 @@
 
     form.classList.add('hidden');
     submittedMsg.classList.remove('hidden');
+    document.getElementById('gaugeBlock').classList.remove('hidden');
+startGaugeLoading();
     output.classList.add('hidden');
     output.innerHTML = "";
     loading.classList.remove('hidden');
@@ -561,6 +614,15 @@
           </div>
         `;
         document.getElementById('reportActions').classList.remove('hidden');
+        stopGaugeLoading();
+renderGauges(
+  result.riskScore || 0,
+  result.priceScore || 0,
+  result.askingPrice || 0,
+  result.riskReason || "",
+  result.priceReason || ""
+);
+
       } else {
         output.innerHTML = "<p class='text-yellow-300'>⚠️ No readable report returned. Check logs or backend response.</p>";
       }

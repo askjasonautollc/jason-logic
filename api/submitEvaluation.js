@@ -323,6 +323,8 @@ const allAssistantMsgs = msgs.data
   })
   .filter(Boolean);
 
+const report = allAssistantMsgs.join("\n\n").trim() || "No report generated."; // ✅ THIS LINE WAS MISSING
+
 let parsedReport;
 try {
   parsedReport = JSON.parse(report);
@@ -330,6 +332,5 @@ try {
   console.error("❌ Failed to parse assistant response:", e.message);
   parsedReport = { error: "Malformed JSON in assistant reply", raw: report };
 }
-return parsedReport;
 
-}
+return parsedReport;

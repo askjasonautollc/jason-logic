@@ -456,6 +456,14 @@
   }
 
   function renderGauges(riskScore, priceScore, askingPrice, riskReason, priceReason) {
+     if (activeRiskGauge) {
+    activeRiskGauge.destroy();
+    activeRiskGauge = null;
+  }
+  if (activePriceGauge) {
+    activePriceGauge.destroy();
+    activePriceGauge = null;
+  }
     document.getElementById('gaugeBlock').classList.remove('hidden');
     document.getElementById('askingPriceDisplay').textContent = `$${parseFloat(askingPrice).toLocaleString()}`;
     document.getElementById('riskReason').textContent = riskReason;
@@ -466,6 +474,9 @@
   let loadingInterval;
 let loadingAngle = 0;
 let loadingUp = true;
+  let activeRiskGauge = null;
+let activePriceGauge = null;
+
 
 function startGaugeLoading() {
   const ctxRisk = document.getElementById('riskGauge').getContext('2d');
@@ -493,6 +504,10 @@ function startGaugeLoading() {
 
   const riskGauge = new Chart(ctxRisk, JSON.parse(JSON.stringify(dummyData)));
   const priceGauge = new Chart(ctxPrice, JSON.parse(JSON.stringify(dummyData)));
+  
+  activeRiskGauge = riskGauge;
+activePriceGauge = priceGauge;
+
 
   loadingInterval = setInterval(() => {
     loadingAngle = loadingUp ? loadingAngle + 0.5 : loadingAngle - 0.5;

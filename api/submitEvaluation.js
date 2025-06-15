@@ -275,9 +275,17 @@ Instructions:
 
 console.log("🧠 Creating assistant message with combined prompt and images:", uploadFileIds);
 
+const fullPrompt = `
+${userPrompt}
+
+${searchSummary}
+
+${recallBlock}
+`.trim();
+
 const messagePayload = {
   role: "user",
-  content: userPrompt + (uploadFileIds.length ? "\n\n" + imageInstructions : "")
+  content: fullPrompt + (uploadFileIds.length ? "\n\n" + imageInstructions : "")
 };
 
 if (uploadFileIds.length) {

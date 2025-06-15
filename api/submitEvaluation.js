@@ -334,3 +334,4 @@ try {
 }
 
 return parsedReport;
+}

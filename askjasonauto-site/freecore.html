@@ -339,18 +339,18 @@
     </div>
 
 <div id="gaugeBlock" class="gauge-block hidden mt-10">
-  <h2>Asking Price</h2>
-  <div id="askingPriceDisplay">$0</div>
+  <h2 class="text-2xl font-bold text-white mb-2">Asking Price</h2>
+  <div id="askingPriceDisplay" class="text-4xl font-extrabold text-lime mb-6">$0</div>
 
-  <div class="gauge-container">
-    <div>
-      <h3>Jason's Car Risk Score</h3>
+  <div class="flex flex-col sm:flex-row justify-center gap-10 text-center">
+    <div class="flex flex-col items-center gap-2">
+      <h3 class="text-lg font-semibold">Jason's Car Risk Score</h3>
       <canvas id="riskGauge"></canvas>
       <div class="gauge-label">Risk Score</div>
       <div class="gauge-reason" id="riskReason"></div>
     </div>
-    <div>
-      <h3>Jason's Price Score</h3>
+    <div class="flex flex-col items-center gap-2">
+      <h3 class="text-lg font-semibold">Jason's Price Score</h3>
       <canvas id="priceGauge"></canvas>
       <div class="gauge-label">Price Evaluation</div>
       <div class="gauge-reason" id="priceReason"></div>
@@ -400,23 +400,22 @@
 
 <script>
   function getGaugeColor(score) {
-    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
-    const percent = clamp(score / 10, 0, 1);
-    const green = [0, 200, 81];
-    const amber = [255, 187, 51];
-    const red = [255, 68, 68];
-    let color;
-    if (percent <= 0.3) {
-      const p = percent / 0.3;
-      color = green.map((c, i) => Math.round(c + p * (amber[i] - c)));
-    } else if (percent <= 0.6) {
-      const p = (percent - 0.3) / 0.3;
-      color = amber.map((c, i) => Math.round(c + p * (red[i] - c)));
-    } else {
-      color = red;
-    }
-    return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+  const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+  const percent = clamp(score / 10, 0, 1);
+  const green = [0, 200, 81];
+  const amber = [255, 187, 51];
+  const red = [255, 68, 68];
+
+  let color;
+  if (percent <= 0.5) {
+    const p = percent / 0.5;
+    color = green.map((c, i) => Math.round(c + p * (amber[i] - c)));
+  } else {
+    const p = (percent - 0.5) / 0.5;
+    color = amber.map((c, i) => Math.round(c + p * (red[i] - c)));
   }
+  return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+}
 
   function createGauge(ctx, value) {
     const gaugeColor = getGaugeColor(value);

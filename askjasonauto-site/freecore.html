@@ -337,6 +337,134 @@
       </div>
     </div>
 
+<div id="gaugeBlock" class="gauge-block hidden mt-10">
+  <h2>Asking Price</h2>
+  <div id="askingPriceDisplay">$0</div>
+
+  <div class="gauge-container">
+    <div>
+      <h3>Jason's Car Risk Score</h3>
+      <canvas id="riskGauge"></canvas>
+      <div class="gauge-label">Risk Score</div>
+      <div class="gauge-reason" id="riskReason"></div>
+    </div>
+    <div>
+      <h3>Jason's Price Score</h3>
+      <canvas id="priceGauge"></canvas>
+      <div class="gauge-label">Price Evaluation</div>
+      <div class="gauge-reason" id="priceReason"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .gauge-block {
+    max-width: 800px;
+    margin: auto;
+    background-color: #222;
+    color: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+  }
+  .gauge-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  @media (min-width: 640px) {
+    .gauge-container {
+      flex-direction: row;
+      justify-content: center;
+    }
+  }
+  canvas {
+    width: 200px !important;
+    height: 200px !important;
+  }
+  .gauge-label {
+    font-weight: bold;
+    margin-top: 0.5rem;
+  }
+  .gauge-reason {
+    font-size: 0.85rem;
+    color: #ccc;
+  }
+  #askingPriceDisplay {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+  }
+</style>
+
+<script>
+  function getGaugeColor(score) {
+    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+    const percent = clamp(score / 10, 0, 1);
+    const green = [0, 200, 81];
+    const amber = [255, 187, 51];
+    const red = [255, 68, 68];
+    let color;
+    if (percent <= 0.3) {
+      const p = percent / 0.3;
+      color = green.map((c, i) => Math.round(c + p * (amber[i] - c)));
+    } else if (percent <= 0.6) {
+      const p = (percent - 0.3) / 0.3;
+      color = amber.map((c, i) => Math.round(c + p * (red[i] - c)));
+    } else {
+      color = red;
+    }
+    return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+  }
+
+  function createGauge(ctx, value) {
+    const gaugeColor = getGaugeColor(value);
+    return new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [value, 10 - value],
+          backgroundColor: [gaugeColor, '#444'],
+          borderWidth: 0,
+          cutout: '80%'
+        }]
+      },
+      options: {
+        rotation: -90,
+        circumference: 180,
+        plugins: {
+          tooltip: { enabled: false },
+          legend: { display: false }
+        }
+      },
+      plugins: [{
+        id: 'centerText',
+        afterDraw(chart) {
+          const { ctx, chartArea } = chart;
+          const x = (chartArea.left + chartArea.right) / 2;
+          const y = chartArea.top + 50;
+          ctx.save();
+          ctx.font = '24px sans-serif';
+          ctx.fillStyle = '#fff';
+          ctx.textAlign = 'center';
+          ctx.fillText(value.toFixed(1), x, y);
+          ctx.restore();
+        }
+      }]
+    });
+  }
+
+  function renderGauges(riskScore, priceScore, askingPrice, riskReason, priceReason) {
+    document.getElementById('gaugeBlock').classList.remove('hidden');
+    document.getElementById('askingPriceDisplay').textContent = `$${parseFloat(askingPrice).toLocaleString()}`;
+    document.getElementById('riskReason').textContent = riskReason;
+    document.getElementById('priceReason').textContent = priceReason;
+    createGauge(document.getElementById('riskGauge'), riskScore);
+    createGauge(document.getElementById('priceGauge'), priceScore);
+  }
+</script>
+
+
     <div id="output" class="mt-10 hidden"></div>
 
     <div id="reportActions" class="hidden mt-6 text-center">

@@ -323,7 +323,12 @@ const allAssistantMsgs = msgs.data
   })
   .filter(Boolean);
 
-const report = allAssistantMsgs.join("\n\n").trim() || "No report generated."; // ✅ THIS LINE WAS MISSING
+let report = allAssistantMsgs.join("\n\n").trim() || "No report generated.";
+
+// 🧹 Strip markdown fencing if present
+if (report.startsWith("```json")) {
+  report = report.replace(/^```json/, "").replace(/```$/, "").trim();
+}
 
 let parsedReport;
 try {

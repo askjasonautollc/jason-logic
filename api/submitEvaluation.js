@@ -80,18 +80,30 @@ export default async function handler(req, res) {
     const floppy = {};
     Object.entries(rawFields).forEach(([k, v]) => floppy[k] = Array.isArray(v) ? v[0] : v);
 
-    const report = await runFullEvaluationLogic(floppy, files);
-    await logTraffic({
+    const rawOutput = await runFullEvaluationLogic(floppy, files);
+
+let parsed;
+try {
+  parsed = typeof rawOutput === 'string' ? JSON.parse(rawOutput) : rawOutput;
+} catch (err) {
+  console.error("❌ Failed to parse assistant output:", err.message);
+  parsed = { error: "Malformed GPT response", raw: rawOutput };
+}
+
+// 🚨 Make sure you still log cleanly
+await logTraffic({
   endpoint: req.url,
   method: req.method,
   statusCode: 200,
   request: floppy,
-  response: { report },
+  response: parsed,
   session_id: '',
   user_agent: req.headers['user-agent'],
   ip: req.headers['x-forwarded-for'] || req.socket?.remoteAddress
 });
-    return res.status(200).json({ report });
+
+return res.status(200).json(parsed);
+
 
   } catch (error) {
     console.error("❌ Handler error:", error);
@@ -311,8 +323,13 @@ const allAssistantMsgs = msgs.data
   })
   .filter(Boolean);
 
-const report = allAssistantMsgs.join("\n\n").trim() || "No report generated.";
-// END GPT EVALUATION FLOW
+let parsedReport;
+try {
+  parsedReport = JSON.parse(report);
+} catch (e) {
+  console.error("❌ Failed to parse assistant response:", e.message);
+  parsedReport = { error: "Malformed JSON in assistant reply", raw: report };
+}
+return parsedReport;
 
-  return report;
 }
